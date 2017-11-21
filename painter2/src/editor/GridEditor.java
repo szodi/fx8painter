@@ -63,14 +63,14 @@ public class GridEditor extends AbstractEditor
 				if (i < horizontalPointsCount - 1)
 				{
 					ControlPoint cpRight = points.get(j * horizontalPointsCount + i + 1);
-					cp0.setTangent(cpRight, cpRight);
-					cpRight.setTangent(cp0, cp0);
+					cp0.setTangent(cpRight, new MutablePoint3D(cpRight.getX() - cp0.getX(), cpRight.getY() - cp0.getY(), cpRight.getZ() - cp0.getZ()));
+					cpRight.setTangent(cp0, new MutablePoint3D(cp0.getX() - cpRight.getX(), cp0.getY() - cpRight.getY(), cp0.getZ() - cpRight.getZ()));
 				}
 				if (j < verticalPointsCount - 1)
 				{
 					ControlPoint cpDown = points.get((j + 1) * horizontalPointsCount + i);
-					cp0.setTangent(cpDown, cpDown);
-					cpDown.setTangent(cp0, cp0);
+					cp0.setTangent(cpDown, new MutablePoint3D(cpDown.getX() - cp0.getX(), cpDown.getY() - cp0.getY(), cpDown.getZ() - cp0.getZ()));
+					cpDown.setTangent(cp0, new MutablePoint3D(cp0.getX() - cpDown.getX(), cp0.getY() - cpDown.getY(), cp0.getZ() - cpDown.getZ()));
 				}
 			}
 		}
