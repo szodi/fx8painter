@@ -5,43 +5,40 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class ControlPoint extends MutablePoint3D
-{
+public class ControlPoint extends MutablePoint3D {
 	boolean isSelected = false;
 	Map<ControlPoint, MutablePoint3D> tangents = new HashMap<>();
 
-	public ControlPoint(double x, double y, double z)
-	{
+	public ControlPoint(double x, double y, double z) {
 		super(x, y, z);
 	}
 
-	public void setTangent(ControlPoint neighbour, MutablePoint3D point)
-	{
+	public void setTangent(ControlPoint neighbour, ControlPoint point) {
+		setTangent(neighbour, new MutablePoint3D(neighbour.getX() - point.getX(), neighbour.getY() - point.getY(),
+				neighbour.getZ() - point.getZ()));
+	}
+
+	public void setTangent(ControlPoint neighbour, MutablePoint3D point) {
 		tangents.put(neighbour, point);
 	}
 
-	public MutablePoint3D getTangent(ControlPoint neighbour)
-	{
+	public MutablePoint3D getTangent(ControlPoint neighbour) {
 		return tangents.get(neighbour);
 	}
 
-	public Set<ControlPoint> getNeighbours()
-	{
+	public Set<ControlPoint> getNeighbours() {
 		return tangents.keySet();
 	}
 
-	public Collection<MutablePoint3D> getTangents()
-	{
+	public Collection<MutablePoint3D> getTangents() {
 		return tangents.values();
 	}
 
-	public boolean isSelected()
-	{
+	public boolean isSelected() {
 		return isSelected;
 	}
 
-	public void setSelected(boolean isSelected)
-	{
+	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
 }

@@ -28,8 +28,8 @@ public class Rotator extends AbstractEditor {
 				clickedX = mouseEvent.getX();
 				clickedY = mouseEvent.getY();
 			} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				rotateCurve(Rotate.Y_AXIS, (clickedX - mouseEvent.getX()) / 10, false);
-				rotateCurve(Rotate.X_AXIS, (mouseEvent.getY() - clickedY) / 10, false);
+				rotateCurve(Rotate.Y_AXIS, (clickedX - mouseEvent.getX()) / 8, false);
+				rotateCurve(Rotate.X_AXIS, (mouseEvent.getY() - clickedY) / 8, false);
 				clickedX = mouseEvent.getX();
 				clickedY = mouseEvent.getY();
 				curveDrawer.accept(MainApp.controlPoints);
@@ -39,8 +39,8 @@ public class Rotator extends AbstractEditor {
 				clickedX = mouseEvent.getX();
 				clickedY = mouseEvent.getY();
 			} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				rotateCurve(Rotate.Y_AXIS, (clickedX - mouseEvent.getX()) / 10, true);
-				rotateCurve(Rotate.X_AXIS, (mouseEvent.getY() - clickedY) / 10, true);
+				rotateCurve(Rotate.Y_AXIS, (clickedX - mouseEvent.getX()) / 8, true);
+				rotateCurve(Rotate.X_AXIS, (mouseEvent.getY() - clickedY) / 8, true);
 				clickedX = mouseEvent.getX();
 				clickedY = mouseEvent.getY();
 				curveDrawer.accept(MainApp.controlPoints);
@@ -49,9 +49,9 @@ public class Rotator extends AbstractEditor {
 	}
 
 	public static void rotateCurve(Point3D rotationAxis, double angle, boolean onlySelected) {
-		Canvas canvas = new Canvas();
-		canvas.setRotationAxis(rotationAxis);
-		canvas.setRotate(angle);
+		Canvas canvas = new Canvas(MainApp.canvas.getWidth(), MainApp.canvas.getHeight());
+		Rotate rotate = new Rotate(angle, canvas.getWidth() / 2, canvas.getHeight() / 2, 0.0, rotationAxis);
+		canvas.getTransforms().add(rotate);
 		for (ControlPoint controlPoint : MainApp.controlPoints) {
 			if (!onlySelected || (onlySelected && controlPoint.isSelected())) {
 				Point3D rotated = canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());

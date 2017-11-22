@@ -17,6 +17,8 @@ public class TangentEditor extends AbstractEditor {
 	private ControlPoint controlPoint;
 	private ControlPoint neighbour;
 	private MutablePoint3D tangentPoint;
+	double clickedX;
+	double clickedY;
 
 	public TangentEditor(Consumer<List<ControlPoint>> curveDrawer,
 			BiConsumer<ControlPoint, ControlPoint> cpAndNeighbour) {
@@ -47,8 +49,9 @@ public class TangentEditor extends AbstractEditor {
 		if (mouseEvent.getButton() == MouseButton.SECONDARY) {
 			if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
 				if (controlPoint != null && neighbour != null) {
-					tangentPoint = getTangentPointAt(controlPoint, neighbour, mouseEvent.getX(), mouseEvent.getY(),
-							0.0);
+					clickedX = mouseEvent.getX();
+					clickedY = mouseEvent.getY();
+					tangentPoint = getTangentPointAt(controlPoint, neighbour, clickedX, clickedY, 0.0);
 				}
 			} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
 				if (tangentPoint != null) {

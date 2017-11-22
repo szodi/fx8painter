@@ -23,7 +23,9 @@ public class PointEditor extends AbstractEditor {
 	public void handle(MouseEvent mouseEvent) {
 		if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
 			controlPoint = MainApp.getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
-			MainApp.actualControlPoint = controlPoint;
+			if (controlPoint != null) {
+				MainApp.actualControlPoint = controlPoint;
+			}
 			curveDrawer.accept(MainApp.controlPoints);
 		}
 		if (mouseEvent.getButton() == MouseButton.PRIMARY) {
@@ -39,6 +41,11 @@ public class PointEditor extends AbstractEditor {
 					controlPoint = new ControlPoint(mouseEvent.getX(), mouseEvent.getY(), mouseEvent.getZ());
 					MainApp.controlPoints.add(controlPoint);
 				}
+				if (!mouseEvent.isControlDown() && mouseEvent.isShiftDown() && MainApp.actualControlPoint != null) {
+					MainApp.actualControlPoint.setTangent(controlPoint, controlPoint);
+					controlPoint.setTangent(MainApp.actualControlPoint, MainApp.actualControlPoint);
+				}
+				MainApp.actualControlPoint = controlPoint;
 			} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
 				controlPoint.setX(mouseEvent.getX());
 				controlPoint.setY(mouseEvent.getY());
@@ -50,7 +57,11 @@ public class PointEditor extends AbstractEditor {
 				clickedY = mouseEvent.getY();
 				controlPoint = MainApp.getControlPointAt(clickedX, clickedY, 0.0);
 				if (controlPoint != null) {
+					if (MainApp.actualControlPoint == controlPoint) {
+						MainApp.actualControlPoint = null;
+					}
 					MainApp.controlPoints.remove(controlPoint);
+					MainApp.controlPoints.forEach(cp -> cp.getNeighbours().remove(controlPoint));
 					curveDrawer.accept(MainApp.controlPoints);
 				}
 			} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {

@@ -51,6 +51,13 @@ public class MainApp extends Application {
 
 		pointEditor.activate(scene);
 
+		// RotateTransition rot = new RotateTransition(Duration.seconds(5), canvas);
+		// rot.setAxis(Rotate.Y_AXIS);
+		// rot.setByAngle(180);
+		// rot.setAutoReverse(true);
+		//
+		// scene.setOnKeyPressed(event -> rot.play());
+
 		group.getChildren().add(imageAdjusterView);
 		group.getChildren().add(canvas);
 		group.getChildren().add(initToolbar());
