@@ -99,22 +99,24 @@ public class MainApp extends Application {
 		return null;
 	}
 
-	public static void rotateCurve(Point3D rotationAxis, double angle) {
+	public static void rotateCurve(Point3D rotationAxis, double angle, boolean onlySelected) {
 		Canvas canvas = new Canvas();
 		canvas.setRotationAxis(rotationAxis);
 		canvas.setRotate(angle);
 		for (ControlPoint controlPoint : controlPoints) {
-			Point3D rotated = canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());
-			for (MutablePoint3D tangent : controlPoint.getTangents()) {
-				Point3D rotatedTangent = canvas.localToParent(tangent.getX() + controlPoint.getX(),
-						tangent.getY() + controlPoint.getY(), tangent.getZ() + controlPoint.getZ());
-				tangent.setX(rotatedTangent.getX() - rotated.getX());
-				tangent.setY(rotatedTangent.getY() - rotated.getY());
-				tangent.setZ(rotatedTangent.getZ() - rotated.getZ());
+			if (!onlySelected || (onlySelected && controlPoint.isSelected())) {
+				Point3D rotated = canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());
+				for (MutablePoint3D tangent : controlPoint.getTangents()) {
+					Point3D rotatedTangent = canvas.localToParent(tangent.getX() + controlPoint.getX(),
+							tangent.getY() + controlPoint.getY(), tangent.getZ() + controlPoint.getZ());
+					tangent.setX(rotatedTangent.getX() - rotated.getX());
+					tangent.setY(rotatedTangent.getY() - rotated.getY());
+					tangent.setZ(rotatedTangent.getZ() - rotated.getZ());
+				}
+				controlPoint.setX(rotated.getX());
+				controlPoint.setY(rotated.getY());
+				controlPoint.setZ(rotated.getZ());
 			}
-			controlPoint.setX(rotated.getX());
-			controlPoint.setY(rotated.getY());
-			controlPoint.setZ(rotated.getZ());
 		}
 	}
 
