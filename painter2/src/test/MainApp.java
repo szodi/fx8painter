@@ -1,5 +1,6 @@
 package test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import editor.CurveDrawer;
@@ -21,6 +23,7 @@ import editor.SelectionEditor;
 import editor.TangentDrawer;
 import editor.TangentEditor;
 import entity.ControlPoint;
+import image.ImageAdjusterView;
 
 public class MainApp extends Application
 {
@@ -37,6 +40,7 @@ public class MainApp extends Application
 	SelectionEditor selectionEditor = new SelectionEditor(curveDrawer::drawSelection);
 	Rotator rotator = new Rotator(curveDrawer::drawPoints);
 	TangentEditor tangentEditor = new TangentEditor(curveDrawer::drawPoints, tangentDrawer::drawTangent);
+	ImageAdjusterView imageAdjusterView = new ImageAdjusterView(new Image(new File("").toURI().toString()));
 
 	private Scene scene;
 
@@ -50,6 +54,7 @@ public class MainApp extends Application
 
 		pointEditor.activate(scene);
 
+		group.getChildren().add(imageAdjusterView);
 		group.getChildren().add(canvas);
 		group.getChildren().add(initToolbar());
 		primaryStage.setScene(scene);
@@ -64,6 +69,13 @@ public class MainApp extends Application
 		Button tbCurveEditor = new Button("CurveEditor");
 		tbCurveEditor.setOnAction(event -> pointEditor.activate(scene));
 
+		Button tbImageAdjuster = new Button("ImageAdjuster");
+		tbImageAdjuster.setOnAction(event -> {
+			scene.setOnMouseDragged(imageAdjusterView);
+			scene.setOnMousePressed(imageAdjusterView);
+			scene.setOnScroll(imageAdjusterView);
+		});
+
 		Button tbGridDrawer = new Button("GridDrawer");
 		tbGridDrawer.setOnAction(event -> gridEditor.activate(scene));
 
@@ -76,7 +88,7 @@ public class MainApp extends Application
 		Button tbTangentEditor = new Button("TangentEditor");
 		tbTangentEditor.setOnAction(event -> tangentEditor.activate(scene));
 
-		return new ToolBar(tbCurveEditor, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor);
+		return new ToolBar(tbCurveEditor, tbImageAdjuster, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor);
 	}
 
 	public static ControlPoint getControlPointAt(double x, double y, double z)
