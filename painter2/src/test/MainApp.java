@@ -18,19 +18,25 @@ import editor.GridEditor;
 import editor.PointEditor;
 import editor.Rotator;
 import editor.SelectionEditor;
+import editor.TangentDrawer;
+import editor.TangentEditor;
 import entity.ControlPoint;
 
 public class MainApp extends Application
 {
 	public static List<ControlPoint> controlPoints = new ArrayList<>();
 
-	Group group = new Group();
 	public static Canvas canvas = new Canvas();
+	public static ControlPoint actualControlPoint = null;
+
+	Group group = new Group();
 	CurveDrawer curveDrawer = new CurveDrawer(canvas);
+	TangentDrawer tangentDrawer = new TangentDrawer(canvas);
 	PointEditor pointEditor = new PointEditor(curveDrawer::drawPoints);
 	GridEditor gridEditor = new GridEditor(curveDrawer::drawPoints);
 	SelectionEditor selectionEditor = new SelectionEditor(curveDrawer::drawSelection);
 	Rotator rotator = new Rotator(curveDrawer::drawPoints);
+	TangentEditor tangentEditor = new TangentEditor(curveDrawer::drawPoints, tangentDrawer::drawTangent);
 
 	private Scene scene;
 
@@ -67,7 +73,23 @@ public class MainApp extends Application
 		Button tbRotator = new Button("Rotator");
 		tbRotator.setOnAction(event -> rotator.activate(scene));
 
-		return new ToolBar(tbCurveEditor, tbGridDrawer, tbSelectionDrawer, tbRotator);
+		Button tbTangentEditor = new Button("TangentEditor");
+		tbTangentEditor.setOnAction(event -> tangentEditor.activate(scene));
+
+		return new ToolBar(tbCurveEditor, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor);
+	}
+
+	public static ControlPoint getControlPointAt(double x, double y, double z)
+	{
+		for (ControlPoint controlPoint : MainApp.controlPoints)
+		{
+			Point3D point = MainApp.canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());
+			if (Math.abs(point.getX() - x) <= (CurveDrawer.DOT_SIZE / 2) && Math.abs(point.getY() - y) <= (CurveDrawer.DOT_SIZE / 2))
+			{
+				return controlPoint;
+			}
+		}
+		return null;
 	}
 
 	public static void rotateCurve(Point3D rotationAxis, double angle)

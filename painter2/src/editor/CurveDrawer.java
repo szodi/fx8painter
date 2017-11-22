@@ -14,11 +14,13 @@ import test.MainApp;
 public class CurveDrawer
 {
 	public static final int DOT_SIZE = 9;
-	public static final double smoothness = 0.05;
+	public static final double smoothness = 0.02;
+
+	private static final Color selectionColor = new Color(0, 0, 0.5, 0.5);
+	private static final Color actualControlPointColor = new Color(0, 1.0, 0, 1.0);
 
 	Canvas canvas;
 	GraphicsContext gc;
-	Color selectionColor = new Color(0, 0, 0.5, 0.5);
 
 	public CurveDrawer(Canvas canvas)
 	{
@@ -31,7 +33,7 @@ public class CurveDrawer
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for (ControlPoint controlPoint : points)
 		{
-			gc.setFill(controlPoint.isSelected() ? Color.LIGHTBLUE : Color.BLACK);
+			gc.setFill(controlPoint == MainApp.actualControlPoint ? actualControlPointColor : (controlPoint.isSelected() ? Color.LIGHTBLUE : Color.BLACK));
 			gc.fillRect(controlPoint.getX() - DOT_SIZE / 2, controlPoint.getY() - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
 			gc.setStroke(Color.BLACK);
 			gc.beginPath();

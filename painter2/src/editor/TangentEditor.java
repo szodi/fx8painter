@@ -1,6 +1,7 @@
 package editor;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javafx.geometry.Point3D;
@@ -8,16 +9,21 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 import entity.ControlPoint;
+import entity.MutablePoint3D;
 import test.MainApp;
 
 public class TangentEditor extends AbstractEditor
 {
 	private Consumer<List<ControlPoint>> curveDrawer;
+	private BiConsumer<ControlPoint, ControlPoint> cpAndNeighbour;
 	private ControlPoint controlPoint;
+	private ControlPoint neighbour;
+	private MutablePoint3D tangentPoint;
 
-	public TangentEditor(Consumer<List<ControlPoint>> curveDrawer)
+	public TangentEditor(Consumer<List<ControlPoint>> curveDrawer, BiConsumer<ControlPoint, ControlPoint> cpAndNeighbour)
 	{
 		this.curveDrawer = curveDrawer;
+		this.cpAndNeighbour = cpAndNeighbour;
 	}
 
 	@Override
@@ -25,62 +31,62 @@ public class TangentEditor extends AbstractEditor
 	{
 		if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED)
 		{
-			ControlPoint controlPoint = getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
-			if (controlPoint != null)
-			{
-				curveDrawer.accept(MainApp.controlPoints);
-			}
+			ControlPoint controlPoint = MainApp.getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
+			MainApp.actualControlPoint = controlPoint;
+			curveDrawer.accept(MainApp.controlPoints);
 		}
 		if (mouseEvent.getButton() == MouseButton.PRIMARY)
 		{
 			if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED)
 			{
-				controlPoint = getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
-				if (controlPoint == null)
+				ControlPoint point = MainApp.getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
+				if (point != null)
 				{
-					controlPoint = new ControlPoint(mouseEvent.getX(), mouseEvent.getY(), mouseEvent.getZ());
-					MainApp.controlPoints.add(controlPoint);
+					if (!mouseEvent.isControlDown())
+					{
+						controlPoint = point;
+					}
+					else if (controlPoint != null && controlPoint.getNeighbours().contains(point))
+					{
+						neighbour = point;
+					}
 				}
-				for (ControlPoint cp : MainApp.controlPoints)
+			}
+			curveDrawer.accept(MainApp.controlPoints);
+		}
+		if (mouseEvent.getButton() == MouseButton.SECONDARY)
+		{
+			if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED)
+			{
+				if (controlPoint != null && neighbour != null)
 				{
-					cp.setSelected(controlPoint == cp);
+					tangentPoint = getTangentPointAt(controlPoint, neighbour, mouseEvent.getX(), mouseEvent.getY(), 0.0);
 				}
 			}
 			else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED)
 			{
-				controlPoint.setX(mouseEvent.getX());
-				controlPoint.setY(mouseEvent.getY());
+				if (tangentPoint != null)
+				{
+					tangentPoint.setX(mouseEvent.getX() - controlPoint.getX());
+					tangentPoint.setY(mouseEvent.getY() - controlPoint.getY());
+					tangentPoint.setZ(mouseEvent.getZ() - controlPoint.getZ());
+				}
 			}
 			curveDrawer.accept(MainApp.controlPoints);
 		}
-		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
+		if (controlPoint != null && neighbour != null)
 		{
-			if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED)
-			{
-				ControlPoint controlPoint = getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
-				if (controlPoint != null)
-				{
-					MainApp.controlPoints.remove(controlPoint);
-					curveDrawer.accept(MainApp.controlPoints);
-				}
-			}
+			cpAndNeighbour.accept(controlPoint, neighbour);
 		}
 	}
 
-	public ControlPoint getControlPointAt(Point3D point)
+	public static MutablePoint3D getTangentPointAt(ControlPoint controlPoint, ControlPoint neighbour, double x, double y, double z)
 	{
-		return getControlPointAt(point.getX(), point.getY(), point.getZ());
-	}
-
-	private ControlPoint getControlPointAt(double x, double y, double z)
-	{
-		for (ControlPoint controlPoint : MainApp.controlPoints)
+		MutablePoint3D tangentPoint = controlPoint.getTangent(neighbour);
+		Point3D point = MainApp.canvas.localToParent(controlPoint.getX() + tangentPoint.getX(), controlPoint.getY() + tangentPoint.getY(), controlPoint.getZ() + tangentPoint.getZ());
+		if (Math.abs(point.getX() - x) <= (TangentDrawer.DOT_SIZE / 2) && Math.abs(point.getY() - y) <= (TangentDrawer.DOT_SIZE / 2))
 		{
-			Point3D point = MainApp.canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());
-			if (Math.abs(point.getX() - x) <= (CurveDrawer.DOT_SIZE / 2) && Math.abs(point.getY() - y) <= (CurveDrawer.DOT_SIZE / 2))
-			{
-				return controlPoint;
-			}
+			return tangentPoint;
 		}
 		return null;
 	}
