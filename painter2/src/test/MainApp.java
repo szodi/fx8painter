@@ -4,6 +4,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import editor.CurveDrawer;
+import editor.GridEditor;
+import editor.PointEditor;
+import editor.Rotator;
+import editor.SelectionEditor;
+import editor.TangentDrawer;
+import editor.TangentEditor;
+import entity.ControlPoint;
+import entity.MutablePoint3D;
+import image.ImageAdjusterView;
 import javafx.application.Application;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -15,18 +25,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import editor.CurveDrawer;
-import editor.GridEditor;
-import editor.PointEditor;
-import editor.Rotator;
-import editor.SelectionEditor;
-import editor.TangentDrawer;
-import editor.TangentEditor;
-import entity.ControlPoint;
-import image.ImageAdjusterView;
-
-public class MainApp extends Application
-{
+public class MainApp extends Application {
 	public static List<ControlPoint> controlPoints = new ArrayList<>();
 
 	public static Canvas canvas = new Canvas();
@@ -45,8 +44,7 @@ public class MainApp extends Application
 	private Scene scene;
 
 	@Override
-	public void start(Stage primaryStage) throws Exception
-	{
+	public void start(Stage primaryStage) throws Exception {
 		scene = new Scene(group, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
 		canvas.setWidth(scene.getWidth());
@@ -64,8 +62,7 @@ public class MainApp extends Application
 
 	}
 
-	private ToolBar initToolbar()
-	{
+	private ToolBar initToolbar() {
 		Button tbCurveEditor = new Button("CurveEditor");
 		tbCurveEditor.setOnAction(event -> pointEditor.activate(scene));
 
@@ -91,35 +88,37 @@ public class MainApp extends Application
 		return new ToolBar(tbCurveEditor, tbImageAdjuster, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor);
 	}
 
-	public static ControlPoint getControlPointAt(double x, double y, double z)
-	{
-		for (ControlPoint controlPoint : MainApp.controlPoints)
-		{
+	public static ControlPoint getControlPointAt(double x, double y, double z) {
+		for (ControlPoint controlPoint : MainApp.controlPoints) {
 			Point3D point = MainApp.canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());
-			if (Math.abs(point.getX() - x) <= (CurveDrawer.DOT_SIZE / 2) && Math.abs(point.getY() - y) <= (CurveDrawer.DOT_SIZE / 2))
-			{
+			if (Math.abs(point.getX() - x) <= (CurveDrawer.DOT_SIZE / 2)
+					&& Math.abs(point.getY() - y) <= (CurveDrawer.DOT_SIZE / 2)) {
 				return controlPoint;
 			}
 		}
 		return null;
 	}
 
-	public static void rotateCurve(Point3D rotationAxis, double angle)
-	{
+	public static void rotateCurve(Point3D rotationAxis, double angle) {
 		Canvas canvas = new Canvas();
 		canvas.setRotationAxis(rotationAxis);
 		canvas.setRotate(angle);
-		for (ControlPoint controlPoint : controlPoints)
-		{
+		for (ControlPoint controlPoint : controlPoints) {
 			Point3D rotated = canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());
+			for (MutablePoint3D tangent : controlPoint.getTangents()) {
+				Point3D rotatedTangent = canvas.localToParent(tangent.getX() + controlPoint.getX(),
+						tangent.getY() + controlPoint.getY(), tangent.getZ() + controlPoint.getZ());
+				tangent.setX(rotatedTangent.getX() - rotated.getX());
+				tangent.setY(rotatedTangent.getY() - rotated.getY());
+				tangent.setZ(rotatedTangent.getZ() - rotated.getZ());
+			}
 			controlPoint.setX(rotated.getX());
 			controlPoint.setY(rotated.getY());
 			controlPoint.setZ(rotated.getZ());
 		}
 	}
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		launch(args);
 	}
 }
