@@ -11,7 +11,7 @@ public class SelectionEditor extends AbstractEditor {
 	private Consumer<Rectangle> rectangleProcessor;
 	double clickedX;
 	double clickedY;
-	ControlPoint clickedControlPoint;
+	ControlPoint controlPoint;
 	Rectangle rectangle = new Rectangle();
 
 	public SelectionEditor(Consumer<Rectangle> rectangleProcessor) {
@@ -23,14 +23,14 @@ public class SelectionEditor extends AbstractEditor {
 		if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
 			clickedX = mouseEvent.getX();
 			clickedY = mouseEvent.getY();
-			clickedControlPoint = MainApp.getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
+			controlPoint = MainApp.getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
 			if (!mouseEvent.isControlDown()) {
-				MainApp.controlPoints.forEach(cp -> cp.setSelected(cp == clickedControlPoint));
+				MainApp.controlPoints.forEach(cp -> cp.setSelected(cp == controlPoint));
 			}
-			if (mouseEvent.isControlDown() && clickedControlPoint != null) {
-				clickedControlPoint.setSelected(!clickedControlPoint.isSelected());
+			if (mouseEvent.isControlDown() && controlPoint != null) {
+				controlPoint.setSelected(!controlPoint.isSelected());
 			}
-		} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED && clickedControlPoint == null) {
+		} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED && controlPoint == null) {
 			rectangle.setX(Math.min(clickedX, mouseEvent.getX()));
 			rectangle.setY(Math.min(clickedY, mouseEvent.getY()));
 			rectangle.setWidth(Math.abs(mouseEvent.getX() - clickedX));
@@ -39,7 +39,7 @@ public class SelectionEditor extends AbstractEditor {
 			rectangleProcessor.accept(rectangle);
 		} else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
 			rectangleProcessor.accept(null);
-			clickedControlPoint = null;
+			controlPoint = null;
 		}
 	}
 }
