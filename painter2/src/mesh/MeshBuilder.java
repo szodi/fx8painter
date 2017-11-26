@@ -20,7 +20,7 @@ public class MeshBuilder
 {
 	public Mesh buildMesh()
 	{
-		List<Mesh> meshes = new ArrayList<>();
+		List<TriangleMesh> meshes = new ArrayList<>();
 		for (int j = 0; j < GridEditor.verticalPointsCount - 1; j++)
 		{
 			for (int i = 0; i < GridEditor.horizontalPointsCount - 1; i++)
@@ -30,31 +30,35 @@ public class MeshBuilder
 				ControlPoint cpLeftBottom = MainApp.controlPoints.get(j * GridEditor.horizontalPointsCount + i + GridEditor.horizontalPointsCount);
 				ControlPoint cpRightBottom = MainApp.controlPoints.get(j * GridEditor.horizontalPointsCount + i + GridEditor.horizontalPointsCount + 1);
 
-				Mesh mesh = new CoonsPatchCreator(cpLeftTop, cpRightTop, cpLeftBottom, cpRightBottom).createMesh();
-				modifyTexCoords((TriangleMesh)mesh, i, j);
-				meshes.add(mesh);
+				meshes.add(new CoonsPatchCreator(cpLeftTop, cpRightTop, cpLeftBottom, cpRightBottom).createMesh());
 			}
 		}
-		if (meshes.size() == 1)
+		TriangleMesh merged = meshes.get(0);
+		if (meshes.size() > 1)
 		{
-			return meshes.get(0);
+			merged = mergeMeshes(meshes);
 		}
-		Mesh merged = mergeMeshes(meshes);
+		modifyTexCoords(merged);
 		return merged;
 	}
 
-	private void modifyTexCoords(TriangleMesh mesh, int i, int j)
+	private void modifyTexCoords(TriangleMesh mesh)
 	{
-		ObservableFloatArray texCoords = mesh.getTexCoords();
-		for (int k = 0; k < texCoords.size(); k += 2)
+		ObservableFloatArray points = mesh.getPoints();
+		Rectangle controlPointBounds = getControlPointBounds(mesh.getPoints());
+		System.out.println(controlPointBounds);
+		float[] texCoords = new float[2 * points.size() / 3];
+
+		int j = 0;
+		for (int i = 0; i < points.size(); i += 3)
 		{
-			float x = texCoords.get(k);
-			float y = texCoords.get(k + 1);
-			x = (x + i) / (float)(GridEditor.horizontalPointsCount - 1);
-			y = (y + j) / (float)(GridEditor.verticalPointsCount - 1);
-			texCoords.set(k, x);
-			texCoords.set(k + 1, y);
+			texCoords[j++] = (float)(points.get(i) - controlPointBounds.getX()) / (float)controlPointBounds.getWidth();
+			texCoords[j++] = (float)(points.get(i + 1) - controlPointBounds.getY()) / (float)controlPointBounds.getHeight();
 		}
+		System.out.println(points.size());
+		System.out.println(texCoords.length);
+		System.out.println(mesh.getFaces().size());
+		mesh.getTexCoords().setAll(texCoords);
 	}
 
 	public Image getTextureImageClip(TriangleMesh mesh, Image image)
@@ -95,28 +99,22 @@ public class MeshBuilder
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 
-	private static Mesh mergeMeshes(List<Mesh> meshes)
+	private static TriangleMesh mergeMeshes(List<TriangleMesh> meshes)
 	{
-		int offsetPoints = 0;
-		int offsetTexCoords = 0;
 		TriangleMesh mergedMesh = new TriangleMesh();
-		for (Mesh mesh : meshes)
+		ObservableFloatArray points = mergedMesh.getPoints();
+		ObservableFaceArray faces = mergedMesh.getFaces();
+		int faceOffset = 0;
+		for (TriangleMesh mesh : meshes)
 		{
-			TriangleMesh triangleMesh = (TriangleMesh)mesh;
-			ObservableFloatArray points = triangleMesh.getPoints();
-			ObservableFloatArray texCoords = triangleMesh.getTexCoords();
-			ObservableFaceArray faces = triangleMesh.getFaces();
-			int[] facesTemp = faces.toArray(new int[1]);
-			for (int i = 0; i < facesTemp.length; i += 2)
+			points.addAll(mesh.getPoints());
+			ObservableFaceArray meshFaces = mesh.getFaces();
+			for (int i = 0; i < meshFaces.size(); i++)
 			{
-				facesTemp[i] += offsetPoints;
-				facesTemp[i + 1] += offsetTexCoords;
+				meshFaces.set(i, meshFaces.get(i) + faceOffset);
 			}
-			mergedMesh.getPoints().addAll(points);
-			mergedMesh.getTexCoords().addAll(texCoords);
-			mergedMesh.getFaces().addAll(facesTemp);
-			offsetPoints += points.size() / 3;
-			offsetTexCoords += texCoords.size() / 2;
+			faces.addAll(mesh.getFaces());
+			faceOffset += mesh.getPoints().size() / 3;
 		}
 		return mergedMesh;
 	}

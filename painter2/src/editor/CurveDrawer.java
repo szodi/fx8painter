@@ -14,7 +14,7 @@ import test.MainApp;
 public class CurveDrawer
 {
 	public static final int DOT_SIZE = 9;
-	public static final double smoothness = 0.02;
+	public static final double smoothness = 0.1;
 
 	private static final Color selectionColor = new Color(0, 0, 0.5, 0.5);
 	private static final Color actualControlPointColor = new Color(0, 1.0, 0, 1.0);

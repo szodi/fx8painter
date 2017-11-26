@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Point2D;
-import javafx.scene.shape.Mesh;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
 
+import editor.CurveDrawer;
 import entity.ControlPoint;
 import entity.MutablePoint3D;
 
 public class CoonsPatchCreator
 {
-	public static double smoothnessHorizontal = 0.02;
-	public static double smoothnessVertical = 0.02;
-
 	ControlPoint leftTop;
 	ControlPoint rightTop;
 	ControlPoint leftBottom;
@@ -94,83 +90,41 @@ public class CoonsPatchCreator
 		return new MutablePoint3D(x, y, z);
 	}
 
-	public Mesh createMesh()
+	public TriangleMesh createMesh()
 	{
 		List<MutablePoint3D> lPoints = new ArrayList<>();
-		List<Point2D> lTexCoords = new ArrayList<>();
 		List<Integer> lFaces = new ArrayList<>();
 		int j = 0;
-
-		for (double u = 0.0; u <= 1.0; u += smoothnessHorizontal)
+		int horizontalSteps = (int)(1.0 + 1.0 / CurveDrawer.smoothness);
+		int verticalSteps = (int)(1.0 + 1.0 / CurveDrawer.smoothness);
+		for (double v = 0.0; v <= 1.0; v += CurveDrawer.smoothness)
 		{
-			for (double v = 0.0; v <= 1.0; v += smoothnessVertical)
+			int i = 0;
+			for (double u = 0.0; u <= 1.0; u += CurveDrawer.smoothness)
 			{
 				MutablePoint3D p00 = getCoonsPoint(u, v);
-				MutablePoint3D p10 = getCoonsPoint(u + smoothnessHorizontal, v);
-				MutablePoint3D p01 = getCoonsPoint(u, v + smoothnessVertical);
-				MutablePoint3D p11 = getCoonsPoint(u + smoothnessHorizontal, v + smoothnessVertical);
-				MutablePoint3D[] points = {p00, p10, p01, p11};
-				int[] faces = {0, 2, 1, 1, 2, 3};
-				for (int i = 0; i < points.length; i++)
+				lPoints.add(p00);
+				int[] faces = {0, horizontalSteps, horizontalSteps + 1, 0, horizontalSteps + 1, 1};
+				if (i < horizontalSteps - 1 && j < verticalSteps - 1)
 				{
-					lPoints.add(points[i]);
+					int faceIndex = j * horizontalSteps + i++;
+					for (int k = 0; k < faces.length; k++)
+					{
+						lFaces.add(faceIndex + faces[k]);
+						lFaces.add(faceIndex + faces[k]);
+					}
 				}
-				for (int i = 0; i < faces.length; i++)
-				{
-					lFaces.add(j * 4 + faces[i]);
-					lFaces.add(j * 4 + faces[i]);
-				}
-				j++;
 			}
+			j++;
 		}
-
-		Rectangle pointBounds = getControlPointBounds(lPoints);
-		double minX = Double.MAX_VALUE;
-		double minY = Double.MAX_VALUE;
-		double maxX = Double.MIN_VALUE;
-		double maxY = Double.MIN_VALUE;
-		for (MutablePoint3D mutablePoint3D : lPoints)
-		{
-			Point2D texPoint = new Point2D((mutablePoint3D.getX() - pointBounds.getX()) / pointBounds.getWidth(), (mutablePoint3D.getY() - pointBounds.getY()) / pointBounds.getHeight());
-			if (texPoint.getX() < minX)
-			{
-				minX = texPoint.getX();
-			}
-			if (texPoint.getX() > maxX)
-			{
-				maxX = texPoint.getX();
-			}
-			if (texPoint.getY() < minY)
-			{
-				minY = texPoint.getY();
-			}
-			if (texPoint.getY() > maxY)
-			{
-				maxY = texPoint.getY();
-			}
-			lTexCoords.add(texPoint);
-		}
+		System.out.println("\npoints : " + lPoints.size());
+		System.out.println("face : " + lFaces.size());
 		TriangleMesh mesh = new TriangleMesh();
 		float[] points = getPoints(lPoints);
-		float[] texCoords = getTexCoords(lTexCoords);
 		int[] faces = getFaces(lFaces);
 		mesh.getPoints().setAll(points);
-		mesh.getTexCoords().setAll(texCoords);
 		mesh.getFaces().setAll(faces);
 		return mesh;
-	}
-
-	private Rectangle getControlPointBounds(List<MutablePoint3D> lPoints)
-	{
-		double minX;
-		double minY;
-		double maxX;
-		double maxY;
-		minX = lPoints.stream().min((cp1, cp2) -> (int)Math.signum(cp1.getX() - cp2.getX())).get().getX();
-		minY = lPoints.stream().min((cp1, cp2) -> (int)Math.signum(cp1.getY() - cp2.getY())).get().getY();
-		maxX = lPoints.stream().max((cp1, cp2) -> (int)Math.signum(cp1.getX() - cp2.getX())).get().getX();
-		maxY = lPoints.stream().max((cp1, cp2) -> (int)Math.signum(cp1.getY() - cp2.getY())).get().getY();
-		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 
 	private static int[] getFaces(List<Integer> faces)
