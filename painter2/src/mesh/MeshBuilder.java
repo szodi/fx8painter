@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.collections.ObservableFloatArray;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 import javafx.scene.shape.Mesh;
 import javafx.scene.shape.ObservableFaceArray;
 import javafx.scene.shape.Rectangle;
@@ -18,7 +15,7 @@ import test.MainApp;
 
 public class MeshBuilder
 {
-	public Mesh buildMesh()
+	public Mesh buildMesh(boolean grabImage)
 	{
 		List<TriangleMesh> meshes = new ArrayList<>();
 		for (int j = 0; j < GridEditor.verticalPointsCount - 1; j++)
@@ -30,15 +27,18 @@ public class MeshBuilder
 				ControlPoint cpLeftBottom = MainApp.controlPoints.get(j * GridEditor.horizontalPointsCount + i + GridEditor.horizontalPointsCount);
 				ControlPoint cpRightBottom = MainApp.controlPoints.get(j * GridEditor.horizontalPointsCount + i + GridEditor.horizontalPointsCount + 1);
 
-				meshes.add(new CoonsPatchCreator(cpLeftTop, cpRightTop, cpLeftBottom, cpRightBottom).createMesh());
+				TriangleMesh coonsMesh = new TriangleMesh();
+				CoonsPatchCreator coonsPatchCreator = new CoonsPatchCreator(cpLeftTop, cpRightTop, cpLeftBottom, cpRightBottom);
+				coonsMesh.getPoints().addAll(coonsPatchCreator.createPoints());
+				coonsMesh.getFaces().addAll(coonsPatchCreator.createFaces());
+				meshes.add(coonsMesh);
 			}
 		}
-		TriangleMesh merged = meshes.get(0);
-		if (meshes.size() > 1)
+		TriangleMesh merged = mergeMeshes(meshes);
+		if (grabImage)
 		{
-			merged = mergeMeshes(meshes);
+			modifyTexCoords(merged);
 		}
-		modifyTexCoords(merged);
 		return merged;
 	}
 
@@ -57,15 +57,7 @@ public class MeshBuilder
 		mesh.getTexCoords().setAll(texCoords);
 	}
 
-	public Image getTextureImageClip(TriangleMesh mesh, Image image)
-	{
-		Rectangle textureBounds = getControlPointBounds(mesh.getPoints());
-		PixelReader reader = image.getPixelReader();
-		WritableImage cropped = new WritableImage(reader, (int)textureBounds.getX(), (int)textureBounds.getY(), (int)textureBounds.getWidth(), (int)textureBounds.getHeight());
-		return cropped;
-	}
-
-	private Rectangle getControlPointBounds(ObservableFloatArray lPoints)
+	public static Rectangle getControlPointBounds(ObservableFloatArray lPoints)
 	{
 		float minX = Float.MAX_VALUE;
 		float minY = Float.MAX_VALUE;

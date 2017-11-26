@@ -1,12 +1,16 @@
 package mesh;
 
+import javafx.collections.ObservableFloatArray;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
@@ -22,6 +26,7 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 	double mouseOldY;
 
 	PhongMaterial material = new PhongMaterial();
+	private TriangleMesh mesh;
 
 	public SurfaceMeshView()
 	{
@@ -34,16 +39,33 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 	public void activate(Scene scene, Image image)
 	{
 		MeshBuilder meshBuilder = new MeshBuilder();
-		TriangleMesh mesh = (TriangleMesh)meshBuilder.buildMesh();
+		if (mesh == null)
+		{
+			mesh = (TriangleMesh)meshBuilder.buildMesh(true);
+			Image texture = getTextureImageClip(mesh, image);
+			material.setDiffuseMap(texture);
+			setMaterial(material);
+		}
+		else
+		{
+			ObservableFloatArray texCoords = mesh.getTexCoords();
+			mesh = (TriangleMesh)meshBuilder.buildMesh(false);
+			mesh.getTexCoords().addAll(texCoords);
+		}
 		super.setMesh(mesh);
 		scene.setOnMouseMoved(this);
 		scene.setOnMousePressed(this);
 		scene.setOnMouseDragged(this);
 		scene.setOnMouseReleased(this);
-		Image texture = meshBuilder.getTextureImageClip(mesh, image);
 
-		material.setDiffuseMap(texture);
-		setMaterial(material);
+	}
+
+	public Image getTextureImageClip(TriangleMesh mesh, Image image)
+	{
+		Rectangle textureBounds = MeshBuilder.getControlPointBounds(mesh.getPoints());
+		PixelReader reader = image.getPixelReader();
+		WritableImage cropped = new WritableImage(reader, (int)textureBounds.getX(), (int)textureBounds.getY(), (int)textureBounds.getWidth(), (int)textureBounds.getHeight());
+		return cropped;
 	}
 
 	@Override

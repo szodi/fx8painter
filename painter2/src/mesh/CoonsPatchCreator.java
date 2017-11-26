@@ -1,10 +1,8 @@
 package mesh;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Point2D;
-import javafx.scene.shape.TriangleMesh;
 
 import editor.CurveDrawer;
 import entity.ControlPoint;
@@ -90,47 +88,47 @@ public class CoonsPatchCreator
 		return new MutablePoint3D(x, y, z);
 	}
 
-	public TriangleMesh createMesh()
+	public float[] createPoints()
 	{
-		List<MutablePoint3D> lPoints = new ArrayList<>();
-		List<Integer> lFaces = new ArrayList<>();
 		int horizontalSteps = (int)(1.0 / CurveDrawer.smoothness);
 		int verticalSteps = (int)(1.0 / CurveDrawer.smoothness);
+		float[] points = new float[(horizontalSteps + 1) * (verticalSteps + 1) * 3];
+		int n = 0;
 		for (int y = 0; y <= verticalSteps; y++)
 		{
 			for (int x = 0; x <= horizontalSteps; x++)
 			{
 				double u = (double)x / (double)horizontalSteps;
 				double v = (double)y / (double)verticalSteps;
-				lPoints.add(getCoonsPoint(u, v));
-				int[] faces = {0, horizontalSteps + 1, horizontalSteps + 2, 0, horizontalSteps + 2, 1};
-				if (x < horizontalSteps && y < verticalSteps)
+				MutablePoint3D point = getCoonsPoint(u, v);
+				points[n++] = (float)point.getX();
+				points[n++] = (float)point.getY();
+				points[n++] = (float)point.getZ();
+			}
+		}
+		return points;
+	}
+
+	public int[] createFaces()
+	{
+		int horizontalSteps = (int)(1.0 / CurveDrawer.smoothness);
+		int verticalSteps = (int)(1.0 / CurveDrawer.smoothness);
+		int[] faces = new int[horizontalSteps * verticalSteps * 12];
+		int n = 0;
+		for (int y = 0; y < verticalSteps; y++)
+		{
+			for (int x = 0; x < horizontalSteps; x++)
+			{
+				int[] faceIndices = {0, horizontalSteps + 1, horizontalSteps + 2, 0, horizontalSteps + 2, 1};
+				int faceIndex = y * (horizontalSteps + 1) + x;
+				for (int k = 0; k < faceIndices.length; k++)
 				{
-					int faceIndex = y * (horizontalSteps + 1) + x;
-					for (int k = 0; k < faces.length; k++)
-					{
-						lFaces.add(faceIndex + faces[k]);
-						lFaces.add(faceIndex + faces[k]);
-					}
+					faces[n++] = faceIndex + faceIndices[k];
+					faces[n++] = faceIndex + faceIndices[k];
 				}
 			}
 		}
-		TriangleMesh mesh = new TriangleMesh();
-		float[] points = getPoints(lPoints);
-		int[] faces = getFaces(lFaces);
-		mesh.getPoints().setAll(points);
-		mesh.getFaces().setAll(faces);
-		return mesh;
-	}
-
-	private static int[] getFaces(List<Integer> faces)
-	{
-		int[] result = new int[faces.size()];
-		for (int i = 0; i < faces.size(); i++)
-		{
-			result[i] = faces.get(i);
-		}
-		return result;
+		return faces;
 	}
 
 	private static float[] getPoints(List<MutablePoint3D> points)
@@ -141,18 +139,6 @@ public class CoonsPatchCreator
 			result[i * 3 + 0] = (float)points.get(i).getX();
 			result[i * 3 + 1] = (float)points.get(i).getY();
 			result[i * 3 + 2] = (float)points.get(i).getZ();
-		}
-		return result;
-	}
-
-	private float[] getTexCoords(List<Point2D> texCoords)
-	{
-		float[] result = new float[texCoords.size() * 2];
-		for (int i = 0; i < texCoords.size(); i++)
-		{
-			Point2D pointOnImage = texCoords.get(i);
-			result[i * 2 + 0] = (float)pointOnImage.getX();
-			result[i * 2 + 1] = (float)pointOnImage.getY();
 		}
 		return result;
 	}
