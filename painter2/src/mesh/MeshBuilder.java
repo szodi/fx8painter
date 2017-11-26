@@ -46,7 +46,6 @@ public class MeshBuilder
 	{
 		ObservableFloatArray points = mesh.getPoints();
 		Rectangle controlPointBounds = getControlPointBounds(mesh.getPoints());
-		System.out.println(controlPointBounds);
 		float[] texCoords = new float[2 * points.size() / 3];
 
 		int j = 0;
@@ -55,9 +54,6 @@ public class MeshBuilder
 			texCoords[j++] = (float)(points.get(i) - controlPointBounds.getX()) / (float)controlPointBounds.getWidth();
 			texCoords[j++] = (float)(points.get(i + 1) - controlPointBounds.getY()) / (float)controlPointBounds.getHeight();
 		}
-		System.out.println(points.size());
-		System.out.println(texCoords.length);
-		System.out.println(mesh.getFaces().size());
 		mesh.getTexCoords().setAll(texCoords);
 	}
 

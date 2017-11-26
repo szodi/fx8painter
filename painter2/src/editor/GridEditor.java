@@ -13,8 +13,8 @@ import test.MainApp;
 
 public class GridEditor extends AbstractEditor
 {
-	public static int horizontalPointsCount = 5;
-	public static int verticalPointsCount = 5;
+	public static int horizontalPointsCount = 3;
+	public static int verticalPointsCount = 3;
 
 	List<ControlPoint> points;
 	double clickedX;

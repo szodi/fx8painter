@@ -94,20 +94,19 @@ public class CoonsPatchCreator
 	{
 		List<MutablePoint3D> lPoints = new ArrayList<>();
 		List<Integer> lFaces = new ArrayList<>();
-		int j = 0;
-		int horizontalSteps = (int)(1.0 + 1.0 / CurveDrawer.smoothness);
-		int verticalSteps = (int)(1.0 + 1.0 / CurveDrawer.smoothness);
-		for (double v = 0.0; v <= 1.0; v += CurveDrawer.smoothness)
+		int horizontalSteps = (int)(1.0 / CurveDrawer.smoothness);
+		int verticalSteps = (int)(1.0 / CurveDrawer.smoothness);
+		for (int y = 0; y <= verticalSteps; y++)
 		{
-			int i = 0;
-			for (double u = 0.0; u <= 1.0; u += CurveDrawer.smoothness)
+			for (int x = 0; x <= horizontalSteps; x++)
 			{
-				MutablePoint3D p00 = getCoonsPoint(u, v);
-				lPoints.add(p00);
-				int[] faces = {0, horizontalSteps, horizontalSteps + 1, 0, horizontalSteps + 1, 1};
-				if (i < horizontalSteps - 1 && j < verticalSteps - 1)
+				double u = (double)x / (double)horizontalSteps;
+				double v = (double)y / (double)verticalSteps;
+				lPoints.add(getCoonsPoint(u, v));
+				int[] faces = {0, horizontalSteps + 1, horizontalSteps + 2, 0, horizontalSteps + 2, 1};
+				if (x < horizontalSteps && y < verticalSteps)
 				{
-					int faceIndex = j * horizontalSteps + i++;
+					int faceIndex = y * (horizontalSteps + 1) + x;
 					for (int k = 0; k < faces.length; k++)
 					{
 						lFaces.add(faceIndex + faces[k]);
@@ -115,10 +114,7 @@ public class CoonsPatchCreator
 					}
 				}
 			}
-			j++;
 		}
-		System.out.println("\npoints : " + lPoints.size());
-		System.out.println("face : " + lFaces.size());
 		TriangleMesh mesh = new TriangleMesh();
 		float[] points = getPoints(lPoints);
 		int[] faces = getFaces(lFaces);
