@@ -64,35 +64,38 @@ public class MutablePoint3D
 		return distance(point.getX(), point.getY(), point.getZ());
 	}
 
-	public void add(double x, double y, double z)
+	public MutablePoint3D add(double x, double y, double z)
 	{
 		this.x += x;
 		this.y += y;
 		this.z += z;
+		return this;
 	}
 
-	public void add(MutablePoint3D point)
+	public MutablePoint3D add(MutablePoint3D point)
 	{
-		add(point.getX(), point.getY(), point.getZ());
+		return add(point.getX(), point.getY(), point.getZ());
 	}
 
-	public void subtract(double x, double y, double z)
+	public MutablePoint3D subtract(double x, double y, double z)
 	{
 		this.x -= x;
 		this.y -= y;
 		this.z -= z;
+		return this;
 	}
 
-	public void subtract(MutablePoint3D point)
+	public MutablePoint3D subtract(MutablePoint3D point)
 	{
-		subtract(point.getX(), point.getY(), point.getZ());
+		return subtract(point.getX(), point.getY(), point.getZ());
 	}
 
-	public void multiply(double factor)
+	public MutablePoint3D multiply(double factor)
 	{
 		this.x *= factor;
 		this.y *= factor;
 		this.z *= factor;
+		return this;
 	}
 
 	public MutablePoint3D normalize()

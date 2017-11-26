@@ -38,7 +38,7 @@ public class SurfaceMesh extends Application
 	{
 		initCamera();
 		mesh = createMesh();
-		surfaceMeshView = new SurfaceMeshView(mesh);
+		// surfaceMeshView = new SurfaceMeshView(mesh);
 		group.getChildren().add(surfaceMeshView);
 		scene = new Scene(group, 1280, 720, true, SceneAntialiasing.BALANCED);
 
