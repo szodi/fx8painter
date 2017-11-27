@@ -59,9 +59,4 @@ public class ImageAdjusterView extends ImageView implements EventHandler<Event>
 			scale.setY(scaleFactor);
 		}
 	}
-
-	public Scale getScale()
-	{
-		return scale;
-	}
 }
