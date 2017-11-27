@@ -95,24 +95,4 @@ public class GridEditor extends AbstractEditor
 			}
 		}
 	}
-
-	public int getHorizontalPointsCount()
-	{
-		return horizontalPointsCount;
-	}
-
-	public void setHorizontalPointsCount(int horizontalPointsCount)
-	{
-		this.horizontalPointsCount = horizontalPointsCount;
-	}
-
-	public int getVerticalPointsCount()
-	{
-		return verticalPointsCount;
-	}
-
-	public void setVerticalPointsCount(int verticalPointsCount)
-	{
-		this.verticalPointsCount = verticalPointsCount;
-	}
 }

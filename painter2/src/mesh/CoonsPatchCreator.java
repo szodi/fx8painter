@@ -1,7 +1,5 @@
 package mesh;
 
-import java.util.List;
-
 import javafx.geometry.Point2D;
 
 import editor.CurveDrawer;
@@ -129,18 +127,6 @@ public class CoonsPatchCreator
 			}
 		}
 		return faces;
-	}
-
-	private static float[] getPoints(List<MutablePoint3D> points)
-	{
-		float[] result = new float[points.size() * 3];
-		for (int i = 0; i < points.size(); i++)
-		{
-			result[i * 3 + 0] = (float)points.get(i).getX();
-			result[i * 3 + 1] = (float)points.get(i).getY();
-			result[i * 3 + 2] = (float)points.get(i).getZ();
-		}
-		return result;
 	}
 
 	public static Point2D toPoint2D(MutablePoint3D point)

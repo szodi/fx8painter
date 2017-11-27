@@ -63,13 +63,6 @@ public class MainApp extends Application
 		pointEditor.activate(scene);
 
 		imageAdjusterView.setTranslateZ(800);
-		// scene.setOnKeyPressed(event -> {
-		// if (event.getCode() == KeyCode.DELETE)
-		// {
-		// controlPoints = controlPoints.stream().filter(cp ->
-		// cp.isSelected()).collect(Collectors.toList());
-		// }
-		// });
 
 		group.getChildren().add(imageAdjusterView);
 		group.getChildren().add(meshView);
