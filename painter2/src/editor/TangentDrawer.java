@@ -9,7 +9,7 @@ import entity.MutablePoint3D;
 
 public class TangentDrawer
 {
-	public static final int DOT_SIZE = 5;
+	public static final int DOT_SIZE = 9;
 
 	private static final Color controlPointColor = new Color(1.0, 0.0, 0.0, 1.0);
 	private static final Color neighbourPointColor = new Color(0.0, 1.0, 0.0, 1.0);
