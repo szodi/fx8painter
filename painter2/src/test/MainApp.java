@@ -4,8 +4,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import editor.CurveDrawer;
+import editor.GridEditor;
+import editor.PathEditor;
+import editor.PointEditor;
+import editor.Rotator;
+import editor.SelectionEditor;
+import editor.TangentDrawer;
+import editor.TangentEditor;
+import entity.ControlPoint;
+import image.ImageAdjusterView;
 import javafx.application.Application;
-import javafx.geometry.Point3D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -17,20 +26,9 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
-
-import editor.CurveDrawer;
-import editor.GridEditor;
-import editor.PointEditor;
-import editor.Rotator;
-import editor.SelectionEditor;
-import editor.TangentDrawer;
-import editor.TangentEditor;
-import entity.ControlPoint;
-import image.ImageAdjusterView;
 import mesh.SurfaceMeshView;
 
-public class MainApp extends Application
-{
+public class MainApp extends Application {
 	public static List<ControlPoint> controlPoints = new ArrayList<>();
 
 	public static Canvas canvas = new Canvas();
@@ -40,21 +38,22 @@ public class MainApp extends Application
 	CurveDrawer curveDrawer = new CurveDrawer(canvas);
 	TangentDrawer tangentDrawer = new TangentDrawer(canvas);
 	PointEditor pointEditor = new PointEditor(curveDrawer::drawPoints);
+	PathEditor pathEditor = new PathEditor(curveDrawer::drawPoints);
 	GridEditor gridEditor = new GridEditor(curveDrawer::drawPoints);
 	SelectionEditor selectionEditor = new SelectionEditor(curveDrawer::drawSelection);
 	Rotator rotator = new Rotator(curveDrawer::drawPoints);
 	TangentEditor tangentEditor = new TangentEditor(curveDrawer::drawPoints, tangentDrawer::drawTangent);
 	// ImageAdjusterView imageAdjusterView = new ImageAdjusterView(new Image(new
 	// File("").toURI().toString()));
-	ImageAdjusterView imageAdjusterView = new ImageAdjusterView(new Image(new File("d:\\imagevenue\\Alisa_I\\84593_hegre-art.com_20171102\\031_alisa-soft-daylight-32-10000px.jpg").toURI().toString()));
+	ImageAdjusterView imageAdjusterView = new ImageAdjusterView(
+			new Image(new File("d:\\Mountain_View.jpg").toURI().toString()));
 
 	SurfaceMeshView meshView = new SurfaceMeshView();
 
 	private Scene scene;
 
 	@Override
-	public void start(Stage primaryStage) throws Exception
-	{
+	public void start(Stage primaryStage) throws Exception {
 		scene = new Scene(group, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
 		canvas.setWidth(scene.getWidth());
@@ -75,8 +74,7 @@ public class MainApp extends Application
 
 	}
 
-	private ToolBar initToolbar()
-	{
+	private ToolBar initToolbar() {
 		Button tbCurveEditor = new Button("CurveEditor");
 		tbCurveEditor.setOnAction(event -> {
 			pointEditor.activate(scene);
@@ -106,6 +104,12 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
+		Button tbPathEditor = new Button("PathEditor");
+		tbPathEditor.setOnAction(event -> {
+			pathEditor.activate(scene);
+			meshView.setVisible(false);
+		});
+
 		Button tbMeshView = new Button("MeshView");
 		tbMeshView.setOnAction(event -> {
 			SnapshotParameters sp = new SnapshotParameters();
@@ -116,24 +120,11 @@ public class MainApp extends Application
 			meshView.setVisible(true);
 		});
 
-		return new ToolBar(tbCurveEditor, tbImageAdjuster, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor, tbMeshView);
+		return new ToolBar(tbCurveEditor, tbImageAdjuster, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor,
+				tbPathEditor, tbMeshView);
 	}
 
-	public static ControlPoint getControlPointAt(double x, double y, double z)
-	{
-		for (ControlPoint controlPoint : MainApp.controlPoints)
-		{
-			Point3D point = MainApp.canvas.localToParent(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ());
-			if (Math.abs(point.getX() - x) <= (CurveDrawer.DOT_SIZE / 2) && Math.abs(point.getY() - y) <= (CurveDrawer.DOT_SIZE / 2))
-			{
-				return controlPoint;
-			}
-		}
-		return null;
-	}
-
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		launch(args);
 	}
 }

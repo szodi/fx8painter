@@ -6,6 +6,7 @@ import entity.ControlPoint;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import test.MainApp;
+import tools.Tools;
 
 public class SelectionEditor extends AbstractEditor {
 	private Consumer<Rectangle> rectangleProcessor;
@@ -23,7 +24,8 @@ public class SelectionEditor extends AbstractEditor {
 		if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
 			clickedX = mouseEvent.getX();
 			clickedY = mouseEvent.getY();
-			controlPoint = MainApp.getControlPointAt(mouseEvent.getX(), mouseEvent.getY(), 0.0);
+			controlPoint = Tools.getControlPointAt(MainApp.canvas, MainApp.controlPoints, mouseEvent.getX(),
+					mouseEvent.getY(), 0.0, CurveDrawer.DOT_SIZE / 2);
 			if (!mouseEvent.isControlDown()) {
 				MainApp.controlPoints.forEach(cp -> cp.setSelected(cp == controlPoint));
 			}

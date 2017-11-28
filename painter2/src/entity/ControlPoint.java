@@ -3,7 +3,10 @@ package entity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import javafx.geometry.Point3D;
 
 public class ControlPoint extends MutablePoint3D {
 	boolean isSelected = false;
@@ -26,6 +29,10 @@ public class ControlPoint extends MutablePoint3D {
 		return tangents.get(neighbour);
 	}
 
+	public void deleteTangent(ControlPoint neighbour) {
+		tangents.remove(neighbour);
+	}
+
 	public Set<ControlPoint> getNeighbours() {
 		return tangents.keySet();
 	}
@@ -40,5 +47,20 @@ public class ControlPoint extends MutablePoint3D {
 
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
+	}
+
+	public void translate(Point3D point) {
+		translate(point.getX(), point.getY(), point.getZ());
+	}
+
+	public void translate(MutablePoint3D point) {
+		translate(point.getX(), point.getY(), point.getZ());
+	}
+
+	public void translate(double x, double y, double z) {
+		add(x, y, z);
+		for (Entry<ControlPoint, MutablePoint3D> tangentEntry : tangents.entrySet()) {
+			tangentEntry.getValue().add(x, y, z);
+		}
 	}
 }
