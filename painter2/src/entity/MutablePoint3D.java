@@ -1,9 +1,13 @@
 package entity;
 
+import java.io.Serializable;
+
 import javafx.beans.NamedArg;
 
-public class MutablePoint3D
+public class MutablePoint3D implements Serializable
 {
+	private static final long serialVersionUID = -1577538620233665110L;
+
 	public static final MutablePoint3D ZERO = new MutablePoint3D(0.0, 0.0, 0.0);
 
 	protected double x;

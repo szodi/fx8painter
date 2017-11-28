@@ -11,10 +11,9 @@ import javafx.scene.transform.Scale;
 public class ImageAdjusterView extends ImageView implements EventHandler<Event>
 {
 	Image image;
-	double scaleFactor = 1.0;
 	double clickedX = 0.0;
 	double clickedY = 0.0;
-	Scale scale = new Scale(scaleFactor, scaleFactor);
+	Scale scale = new Scale(1.0, 1.0);
 
 	public ImageAdjusterView(Image image)
 	{
@@ -54,9 +53,18 @@ public class ImageAdjusterView extends ImageView implements EventHandler<Event>
 	{
 		if (scrollEvent.getEventType() == ScrollEvent.SCROLL)
 		{
-			scaleFactor = Math.max(0, scaleFactor + scrollEvent.getDeltaY() / 500);
-			scale.setX(scaleFactor);
-			scale.setY(scaleFactor);
+			scale.setX(Math.max(0, scale.getX() + scrollEvent.getDeltaY() / 500));
+			scale.setY(Math.max(0, scale.getY() + scrollEvent.getDeltaY() / 500));
 		}
+	}
+
+	public Scale getScale()
+	{
+		return scale;
+	}
+
+	public void setScale(Scale scale)
+	{
+		this.scale = scale;
 	}
 }
