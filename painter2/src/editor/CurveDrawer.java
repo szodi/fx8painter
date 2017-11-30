@@ -37,7 +37,7 @@ public class CurveDrawer {
 			drawControlPoint(controlPoint);
 			gc.setStroke(Color.BLUE);
 			for (ControlPoint neighbour : controlPoint.getNeighbours()) {
-				drawTangent(controlPoint, neighbour);
+				drawSegment(controlPoint, neighbour);
 			}
 		}
 	}
@@ -47,7 +47,7 @@ public class CurveDrawer {
 		gc.fillRect(controlPoint.getX() - HALF_DOT_SIZE, controlPoint.getY() - HALF_DOT_SIZE, DOT_SIZE, DOT_SIZE);
 	}
 
-	private void drawTangent(ControlPoint controlPoint, ControlPoint neighbour) {
+	private void drawSegment(ControlPoint controlPoint, ControlPoint neighbour) {
 		for (double t = 0.0; t < 1.0; t += smoothness) {
 			MutablePoint3D point = Tools.getBezierPoint(controlPoint, neighbour, t);
 			gc.strokeLine(point.getX(), point.getY(), point.getX(), point.getY());

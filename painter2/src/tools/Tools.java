@@ -1,13 +1,17 @@
 package tools;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 import entity.ControlPoint;
 import entity.MutablePoint3D;
 import javafx.collections.ObservableFloatArray;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
+import javafx.scene.shape.ObservableFaceArray;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.TriangleMesh;
 
 public class Tools {
 	public static Rectangle getControlPointBounds(ObservableFloatArray lPoints) {
@@ -32,6 +36,44 @@ public class Tools {
 			}
 		}
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+	}
+
+	public static TriangleMesh mergeMeshes(List<TriangleMesh> meshes) {
+		TriangleMesh mergedMesh = new TriangleMesh();
+		ObservableFloatArray points = mergedMesh.getPoints();
+		ObservableFaceArray faces = mergedMesh.getFaces();
+		int faceOffset = 0;
+		for (TriangleMesh mesh : meshes) {
+			points.addAll(mesh.getPoints());
+			ObservableFaceArray meshFaces = mesh.getFaces();
+			for (int i = 0; i < meshFaces.size(); i++) {
+				meshFaces.set(i, meshFaces.get(i) + faceOffset);
+			}
+			faces.addAll(mesh.getFaces());
+			faceOffset += mesh.getPoints().size() / 3;
+		}
+		return mergedMesh;
+	}
+
+	public static MutablePoint3D getCurvePoint(List<ControlPoint> controlPoints, double t) {
+		if (Objects.isNull(controlPoints) || controlPoints.isEmpty()) {
+			return null;
+		} else if (controlPoints.size() == 1) {
+			return controlPoints.get(0);
+		}
+		double pt = t * (controlPoints.size() - 1);
+		int beforeControlPointIndex = (int) Math.floor(pt);
+		int afterControlPointIndex = (int) Math.ceil(pt);
+		if (beforeControlPointIndex == afterControlPointIndex) {
+			if (t < 1.0) {
+				afterControlPointIndex++;
+			} else {
+				beforeControlPointIndex--;
+			}
+		}
+		ControlPoint before = controlPoints.get(beforeControlPointIndex);
+		ControlPoint after = controlPoints.get(afterControlPointIndex);
+		return Tools.getBezierPoint(before, after, pt - beforeControlPointIndex);
 	}
 
 	public static ControlPoint getControlPointAt(Node node, Collection<ControlPoint> controlPoints, double x, double y, double z, double tolerance) {

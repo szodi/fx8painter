@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-import tools.Tools;
-
 public class Path {
 
 	List<ControlPoint> controlPoints;
@@ -27,23 +25,13 @@ public class Path {
 				throw new RuntimeException("Curve cannot be separated");
 			}
 			if (tangents.size() > 2) {
-				throw new RuntimeException("Control point cannot have more than 2 connections, " + controlPoint
-						+ " has " + tangents.size());
+				throw new RuntimeException("Control point cannot have more than 2 connections, " + controlPoint + " has " + tangents.size());
 			}
 			if (tangents.size() == 1) {
 				countEnds++;
 			}
 		}
 		return new Path(controlPoints);
-	}
-
-	public MutablePoint3D getPathPoint(double t) {
-		double pt = t * (controlPoints.size() - 1);
-		int beforeControlPointIndex = (int) Math.floor(pt);
-		int afterControlPointIndex = (int) Math.ceil(pt);
-		ControlPoint before = controlPoints.get(beforeControlPointIndex);
-		ControlPoint after = controlPoints.get(afterControlPointIndex);
-		return Tools.getBezierPoint(before, after, pt - beforeControlPointIndex);
 	}
 
 	public void removeControlPoint(ControlPoint controlPoint) {
@@ -93,5 +81,13 @@ public class Path {
 			return;
 		}
 		Collections.reverse(controlPoints);
+	}
+
+	public List<ControlPoint> getControlPoints() {
+		return controlPoints;
+	}
+
+	public void setControlPoints(List<ControlPoint> controlPoints) {
+		this.controlPoints = controlPoints;
 	}
 }

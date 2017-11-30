@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
@@ -39,8 +40,9 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 		MeshBuilder meshBuilder = new MeshBuilder();
 		if (mesh == null) {
 			mesh = (TriangleMesh) meshBuilder.buildMesh(true);
-			Image texture = getTextureImageClip(mesh, image);
-			material.setDiffuseMap(texture);
+			material.setDiffuseColor(Color.AQUAMARINE);
+			// Image texture = getTextureImageClip(mesh, image);
+			// material.setDiffuseMap(texture);
 			setMaterial(material);
 		} else {
 			ObservableFloatArray texCoords = mesh.getTexCoords();

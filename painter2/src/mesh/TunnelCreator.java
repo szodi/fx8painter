@@ -1,15 +1,13 @@
 package mesh;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import editor.CurveDrawer;
 import entity.ControlPoint;
 import entity.MutablePoint3D;
 import entity.Path;
 import javafx.geometry.Point2D;
+import test.MainApp;
 import tools.Tools;
 
 public class TunnelCreator {
@@ -23,32 +21,31 @@ public class TunnelCreator {
 
 	public float[] createPoints() {
 		Set<ControlPoint> controlPoints = controlPointPathMap.keySet();
-		List<MutablePoint3D> lPoints = new ArrayList<>();
-		for (int t = 0; t <= 1.0; t += pathSmoothness) {
+		int horizontalSteps = (int) (1.0 / curveSmoothness);
+		int verticalSteps = (int) (1.0 / pathSmoothness);
+		float[] points = new float[(horizontalSteps + 1) * (verticalSteps + 1) * 3];
+		int n = 0;
+		for (int y = 0; y <= verticalSteps; y++) {
+			double v = (double) y / (double) verticalSteps;
 			for (ControlPoint controlPoint : controlPoints) {
 				Path path = controlPointPathMap.get(controlPoint);
-				MutablePoint3D pathPoint = path.getPathPoint(t);
+				MutablePoint3D pathPoint = Tools.getCurvePoint(path.getControlPoints(), v).subtract(controlPoint);
 				controlPoint.translate(pathPoint);
-				for (ControlPoint neighbour : controlPoint.getNeighbours()) {
-					for (double s = 0.0; s <= 1.0; s += curveSmoothness) {
-						MutablePoint3D point = Tools.getBezierPoint(controlPoint, neighbour, s);
-						lPoints.add(point);
-					}
-				}
 			}
-		}
-		float[] points = new float[lPoints.size() * 3];
-		for (int i = 0; i < lPoints.size(); i++) {
-			points[3 * i + 0] = (float) lPoints.get(i).getX();
-			points[3 * i + 1] = (float) lPoints.get(i).getY();
-			points[3 * i + 2] = (float) lPoints.get(i).getZ();
+			for (int x = 0; x <= horizontalSteps; x++) {
+				double u = (double) x / (double) horizontalSteps;
+				MutablePoint3D curvePoint = Tools.getCurvePoint(MainApp.controlPoints, u);
+				points[n++] = (float) curvePoint.getX();
+				points[n++] = (float) curvePoint.getY();
+				points[n++] = (float) curvePoint.getZ();
+			}
 		}
 		return points;
 	}
 
 	public int[] createFaces() {
-		int horizontalSteps = (int) (1.0 / CurveDrawer.smoothness);
-		int verticalSteps = (int) (1.0 / CurveDrawer.smoothness);
+		int horizontalSteps = (int) (1.0 / curveSmoothness);
+		int verticalSteps = (int) (1.0 / pathSmoothness);
 		int[] faces = new int[horizontalSteps * verticalSteps * 12];
 		int n = 0;
 		for (int y = 0; y < verticalSteps; y++) {
