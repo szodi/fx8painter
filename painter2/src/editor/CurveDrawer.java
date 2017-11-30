@@ -13,7 +13,7 @@ import test.MainApp;
 
 public class CurveDrawer
 {
-	public static final int DOT_SIZE = 9;
+	public static final int DOT_SIZE = 11;
 	public static final double smoothness = 0.02;
 
 	private static final Color selectionColor = new Color(0, 0, 0.5, 0.5);
@@ -30,23 +30,34 @@ public class CurveDrawer
 
 	public void drawPoints(List<ControlPoint> points)
 	{
+		gc.setLineWidth(2);
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for (ControlPoint controlPoint : points)
 		{
-			gc.setFill(controlPoint == MainApp.actualControlPoint ? actualControlPointColor : (controlPoint.isSelected() ? Color.LIGHTBLUE : Color.BLACK));
-			gc.fillRect(controlPoint.getX() - DOT_SIZE / 2, controlPoint.getY() - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
-			gc.setStroke(Color.BLACK);
+			drawControlPoint(controlPoint);
+			gc.setStroke(Color.BLUE);
 			gc.beginPath();
 			for (ControlPoint neighbour : controlPoint.getNeighbours())
 			{
-				for (double t = 0.0; t < 1.0; t += smoothness)
-				{
-					MutablePoint3D point = getBezierPoint(controlPoint, controlPoint.getTangent(neighbour), neighbour.getTangent(controlPoint), neighbour, t);
-					gc.beginPath();
-					gc.lineTo(point.getX(), point.getY());
-					gc.stroke();
-				}
+				drawTangent(controlPoint, neighbour);
 			}
+		}
+	}
+
+	private void drawControlPoint(ControlPoint controlPoint)
+	{
+		gc.setFill(controlPoint == MainApp.actualControlPoint ? actualControlPointColor : (controlPoint.isSelected() ? Color.DARKGOLDENROD : Color.LIGHTCYAN));
+		gc.fillRect(controlPoint.getX() - DOT_SIZE / 2, controlPoint.getY() - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
+	}
+
+	private void drawTangent(ControlPoint controlPoint, ControlPoint neighbour)
+	{
+		for (double t = 0.0; t < 1.0; t += smoothness)
+		{
+			MutablePoint3D point = getBezierPoint(controlPoint, controlPoint.getTangent(neighbour), neighbour.getTangent(controlPoint), neighbour, t);
+			gc.beginPath();
+			gc.lineTo(point.getX(), point.getY());
+			gc.stroke();
 		}
 	}
 

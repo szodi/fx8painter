@@ -55,6 +55,11 @@ public class MutablePoint3D implements Serializable
 		this.z = z;
 	}
 
+	public MutablePoint3D clone()
+	{
+		return new MutablePoint3D(x, y, z);
+	}
+
 	public double distance(double x1, double y1, double z1)
 	{
 		double a = getX() - x1;

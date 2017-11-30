@@ -8,17 +8,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
 import entity.ControlPoint;
-import entity.MutablePoint3D;
 import test.MainApp;
 
 public class GridEditor extends AbstractEditor
 {
-	public static int horizontalPointsCount = 5;
-	public static int verticalPointsCount = 5;
+	public static int horizontalPointsCount = 2;
+	public static int verticalPointsCount = 2;
 
 	List<ControlPoint> points;
-	double clickedX;
-	double clickedY;
 	Rectangle rectangle = new Rectangle();
 	private Consumer<List<ControlPoint>> curveDrawer;
 
@@ -30,23 +27,27 @@ public class GridEditor extends AbstractEditor
 	@Override
 	public void handle(MouseEvent mouseEvent)
 	{
-		if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED)
-		{
-			points = createDefaultControlPoints();
-			clickedX = mouseEvent.getX();
-			clickedY = mouseEvent.getY();
-			MainApp.controlPoints.addAll(points);
-			curveDrawer.accept(MainApp.controlPoints);
-		}
-		else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED)
-		{
-			rectangle.setX(Math.min(clickedX, mouseEvent.getX()));
-			rectangle.setY(Math.min(clickedY, mouseEvent.getY()));
-			rectangle.setWidth(Math.abs(mouseEvent.getX() - clickedX));
-			rectangle.setHeight(Math.abs(mouseEvent.getY() - clickedY));
-			updateControlPoints();
-			curveDrawer.accept(MainApp.controlPoints);
-		}
+		super.handle(mouseEvent);
+		curveDrawer.accept(MainApp.controlPoints);
+	}
+
+	@Override
+	protected void handlePrimaryMousePressed(MouseEvent event)
+	{
+		points = createDefaultControlPoints();
+		clickedX = event.getX();
+		clickedY = event.getY();
+		MainApp.controlPoints.addAll(points);
+	}
+
+	@Override
+	protected void handlePrimaryMouseDragged(MouseEvent event)
+	{
+		rectangle.setX(Math.min(clickedX, event.getX()));
+		rectangle.setY(Math.min(clickedY, event.getY()));
+		rectangle.setWidth(Math.abs(event.getX() - clickedX));
+		rectangle.setHeight(Math.abs(event.getY() - clickedY));
+		updateControlPoints();
 	}
 
 	private List<ControlPoint> createDefaultControlPoints()
@@ -64,14 +65,14 @@ public class GridEditor extends AbstractEditor
 				if (i < horizontalPointsCount - 1)
 				{
 					ControlPoint cpRight = points.get(j * horizontalPointsCount + i + 1);
-					cp0.setTangent(cpRight, new MutablePoint3D(cpRight.getX() - cp0.getX(), cpRight.getY() - cp0.getY(), cpRight.getZ() - cp0.getZ()));
-					cpRight.setTangent(cp0, new MutablePoint3D(cp0.getX() - cpRight.getX(), cp0.getY() - cpRight.getY(), cp0.getZ() - cpRight.getZ()));
+					cp0.setTangent(cpRight, cpRight.clone().subtract(cp0));
+					cpRight.setTangent(cp0, cp0.clone().subtract(cpRight));
 				}
 				if (j < verticalPointsCount - 1)
 				{
 					ControlPoint cpDown = points.get((j + 1) * horizontalPointsCount + i);
-					cp0.setTangent(cpDown, new MutablePoint3D(cpDown.getX() - cp0.getX(), cpDown.getY() - cp0.getY(), cpDown.getZ() - cp0.getZ()));
-					cpDown.setTangent(cp0, new MutablePoint3D(cp0.getX() - cpDown.getX(), cp0.getY() - cpDown.getY(), cp0.getZ() - cpDown.getZ()));
+					cp0.setTangent(cpDown, cpDown.clone().subtract(cp0));
+					cpDown.setTangent(cp0, cp0.clone().subtract(cpDown));
 				}
 			}
 		}

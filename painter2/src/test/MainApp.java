@@ -141,7 +141,8 @@ public class MainApp extends Application
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Load Project");
 
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		fileChooser.setInitialDirectory(new File("D:\\temp3"));
+		// fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Painter Project (.prj)", "*.prj"));
 		File file = fileChooser.showSaveDialog(stage);
 		if (file == null)
@@ -163,7 +164,8 @@ public class MainApp extends Application
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Load Project");
 
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		fileChooser.setInitialDirectory(new File("D:\\temp3"));
+		// fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Painter Project (.prj)", "*.prj"));
 		File file = fileChooser.showOpenDialog(stage);
 		if (file == null)
@@ -180,7 +182,9 @@ public class MainApp extends Application
 		scale.setY(project.getImageScaleY());
 		imageAdjusterView.setX(project.getImageX());
 		imageAdjusterView.setY(project.getImageY());
-		controlPoints = project.getControlPoints();
+		controlPoints.clear();
+		controlPoints.addAll(project.getControlPoints());
+		curveDrawer.drawPoints(controlPoints);
 	}
 
 	public static void main(String[] args)
