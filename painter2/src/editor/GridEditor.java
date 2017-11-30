@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import entity.ControlPoint;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
-
-import entity.ControlPoint;
 import test.MainApp;
 
-public class GridEditor extends AbstractEditor
-{
+public class GridEditor extends AbstractEditor {
 	public static int horizontalPointsCount = 2;
 	public static int verticalPointsCount = 2;
 
@@ -19,21 +18,24 @@ public class GridEditor extends AbstractEditor
 	Rectangle rectangle = new Rectangle();
 	private Consumer<List<ControlPoint>> curveDrawer;
 
-	public GridEditor(Consumer<List<ControlPoint>> curveDrawer)
-	{
+	public GridEditor(Consumer<List<ControlPoint>> curveDrawer) {
 		this.curveDrawer = curveDrawer;
 	}
 
 	@Override
-	public void handle(MouseEvent mouseEvent)
-	{
+	public void activate(Scene scene) {
+		super.activate(scene);
+		curveDrawer.accept(MainApp.controlPoints);
+	}
+
+	@Override
+	public void handle(MouseEvent mouseEvent) {
 		super.handle(mouseEvent);
 		curveDrawer.accept(MainApp.controlPoints);
 	}
 
 	@Override
-	protected void handlePrimaryMousePressed(MouseEvent event)
-	{
+	protected void handlePrimaryMousePressed(MouseEvent event) {
 		points = createDefaultControlPoints();
 		clickedX = event.getX();
 		clickedY = event.getY();
@@ -41,8 +43,7 @@ public class GridEditor extends AbstractEditor
 	}
 
 	@Override
-	protected void handlePrimaryMouseDragged(MouseEvent event)
-	{
+	protected void handlePrimaryMouseDragged(MouseEvent event) {
 		rectangle.setX(Math.min(clickedX, event.getX()));
 		rectangle.setY(Math.min(clickedY, event.getY()));
 		rectangle.setWidth(Math.abs(event.getX() - clickedX));
@@ -50,26 +51,20 @@ public class GridEditor extends AbstractEditor
 		updateControlPoints();
 	}
 
-	private List<ControlPoint> createDefaultControlPoints()
-	{
+	private List<ControlPoint> createDefaultControlPoints() {
 		List<ControlPoint> points = new ArrayList<>();
-		for (int i = 0; i < horizontalPointsCount * verticalPointsCount; i++)
-		{
+		for (int i = 0; i < horizontalPointsCount * verticalPointsCount; i++) {
 			points.add(new ControlPoint(0.0, 0.0, 0.0));
 		}
-		for (int j = 0; j < verticalPointsCount; j++)
-		{
-			for (int i = 0; i < horizontalPointsCount; i++)
-			{
+		for (int j = 0; j < verticalPointsCount; j++) {
+			for (int i = 0; i < horizontalPointsCount; i++) {
 				ControlPoint cp0 = points.get(j * horizontalPointsCount + i);
-				if (i < horizontalPointsCount - 1)
-				{
+				if (i < horizontalPointsCount - 1) {
 					ControlPoint cpRight = points.get(j * horizontalPointsCount + i + 1);
 					cp0.setTangent(cpRight, cpRight.clone().subtract(cp0));
 					cpRight.setTangent(cp0, cp0.clone().subtract(cpRight));
 				}
-				if (j < verticalPointsCount - 1)
-				{
+				if (j < verticalPointsCount - 1) {
 					ControlPoint cpDown = points.get((j + 1) * horizontalPointsCount + i);
 					cp0.setTangent(cpDown, cpDown.clone().subtract(cp0));
 					cpDown.setTangent(cp0, cp0.clone().subtract(cpDown));
@@ -79,15 +74,12 @@ public class GridEditor extends AbstractEditor
 		return points;
 	}
 
-	private void updateControlPoints()
-	{
+	private void updateControlPoints() {
 		double scaleHorizontal = rectangle.getWidth() / (horizontalPointsCount - 1);
 		double scaleVertical = rectangle.getHeight() / (verticalPointsCount - 1);
 		int k = 0;
-		for (int j = 0; j < verticalPointsCount; j++)
-		{
-			for (int i = 0; i < horizontalPointsCount; i++)
-			{
+		for (int j = 0; j < verticalPointsCount; j++) {
+			for (int i = 0; i < horizontalPointsCount; i++) {
 				double px = i * scaleHorizontal + rectangle.getX();
 				double py = j * scaleVertical + rectangle.getY();
 				ControlPoint controlPoint = points.get(k++);

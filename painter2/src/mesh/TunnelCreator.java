@@ -28,7 +28,7 @@ public class TunnelCreator {
 			for (ControlPoint controlPoint : controlPoints) {
 				Path path = controlPointPathMap.get(controlPoint);
 				MutablePoint3D pathPoint = path.getPathPoint(t);
-				controlPoint.translate(pathPoint.getX(), pathPoint.getY(), pathPoint.getZ());
+				controlPoint.translate(pathPoint);
 				for (ControlPoint neighbour : controlPoint.getNeighbours()) {
 					for (double s = 0.0; s <= 1.0; s += curveSmoothness) {
 						MutablePoint3D point = Tools.getBezierPoint(controlPoint, neighbour, s);

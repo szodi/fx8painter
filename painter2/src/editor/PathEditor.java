@@ -4,79 +4,70 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javafx.scene.input.MouseEvent;
-
 import entity.ControlPoint;
+import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import test.MainApp;
 
-public class PathEditor extends AbstractEditor
-{
+public class PathEditor extends AbstractEditor {
 	protected Consumer<List<ControlPoint>> curveDrawer;
-	protected ControlPoint controlPoint;
 	protected List<ControlPoint> controlPoints = new ArrayList<>();
 
-	public PathEditor(Consumer<List<ControlPoint>> curveDrawer)
-	{
+	public PathEditor(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer) {
+		this.controlPoints = controlPoints;
 		this.curveDrawer = curveDrawer;
 	}
 
 	@Override
-	public void handle(MouseEvent mouseEvent)
-	{
+	public void activate(Scene scene) {
+		super.activate(scene);
+		curveDrawer.accept(controlPoints);
+	}
+
+	@Override
+	public void handle(MouseEvent mouseEvent) {
 		super.handle(mouseEvent);
 		curveDrawer.accept(controlPoints);
 	}
 
 	@Override
-	protected void handlePrimaryMousePressed(MouseEvent event)
-	{
+	protected void handlePrimaryMousePressed(MouseEvent event) {
 		controlPoint = getControlPointAt(controlPoints, event.getX(), event.getY());
-		if (controlPoint == null)
-		{
-			if (!event.isControlDown())
-			{
+		if (controlPoint == null) {
+			if (!event.isControlDown()) {
 				controlPoint = new ControlPoint(event.getX(), event.getY(), event.getZ());
-				if (!controlPoints.isEmpty())
-				{
+				if (!controlPoints.isEmpty()) {
 					ControlPoint lastControlPoint = controlPoints.get(controlPoints.size() - 1);
 					lastControlPoint.setTangent(controlPoint, controlPoint);
 					controlPoint.setTangent(lastControlPoint, lastControlPoint);
 				}
 				controlPoints.add(controlPoint);
 			}
-		}
-		else
-		{
-			if (event.isControlDown())
-			{
+		} else {
+			if (event.isControlDown()) {
 				controlPoint.setSelected(!controlPoint.isSelected());
-			}
-			else
-			{
+			} else {
 				controlPoints.forEach(cp -> cp.setSelected(false));
 			}
 		}
 		MainApp.actualControlPoint = controlPoint;
 	}
 
-	protected void handlePrimaryMouseDragged(MouseEvent event)
-	{
-		if (controlPoint != null)
-		{
+	@Override
+	protected void handlePrimaryMouseDragged(MouseEvent event) {
+		if (controlPoint != null) {
 			controlPoint.setX(event.getX());
 			controlPoint.setY(event.getY());
 		}
 	}
 
-	protected void handleSecondaryMousePressed(MouseEvent event)
-	{
+	@Override
+	protected void handleSecondaryMousePressed(MouseEvent event) {
 		clickedX = event.getX();
 		clickedY = event.getY();
 		controlPoint = getControlPointAt(controlPoints, event.getX(), event.getY());
-		if (controlPoint != null)
-		{
-			if (MainApp.actualControlPoint == controlPoint)
-			{
+		if (controlPoint != null) {
+			if (MainApp.actualControlPoint == controlPoint) {
 				MainApp.actualControlPoint = null;
 			}
 			controlPoints.remove(controlPoint);
@@ -84,15 +75,14 @@ public class PathEditor extends AbstractEditor
 		}
 	}
 
-	protected void handleSecondaryMouseDragged(MouseEvent event)
-	{
+	@Override
+	protected void handleSecondaryMouseDragged(MouseEvent event) {
 		controlPoints.stream().filter(ControlPoint::isSelected).forEach(cp -> cp.add(event.getX() - clickedX, event.getY() - clickedY, 0.0));
 		clickedX = event.getX();
 		clickedY = event.getY();
 	}
 
-	public List<ControlPoint> getControlPoints()
-	{
+	public List<ControlPoint> getControlPoints() {
 		return controlPoints;
 	}
 }

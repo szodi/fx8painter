@@ -4,21 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.SceneAntialiasing;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
-import javafx.scene.control.ToolBar;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.transform.Scale;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-
 import editor.CurveDrawer;
 import editor.GridEditor;
 import editor.PathEditor;
@@ -30,12 +15,27 @@ import editor.TangentEditor;
 import entity.ControlPoint;
 import image.ImageAdjusterView;
 import io.Project;
+import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.transform.Scale;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import mesh.SurfaceMeshView;
 
-public class MainApp extends Application
-{
-	private static String IMAGE_FILE = "d:\\imagevenue\\Alisa_I\\84593_hegre-art.com_20171102\\031_alisa-soft-daylight-32-10000px.jpg";
+public class MainApp extends Application {
+	private static String IMAGE_FILE = "d:\\Mountain_View.jpg";
 	public static List<ControlPoint> controlPoints = new ArrayList<>();
+	public static List<ControlPoint> pathControlPoints = new ArrayList<>();
 
 	public static Canvas canvas = new Canvas();
 	public static ControlPoint actualControlPoint = null;
@@ -43,12 +43,12 @@ public class MainApp extends Application
 	Group group = new Group();
 	CurveDrawer curveDrawer = new CurveDrawer(canvas);
 	TangentDrawer tangentDrawer = new TangentDrawer(canvas);
-	PointEditor pointEditor = new PointEditor(curveDrawer::drawPoints);
-	PathEditor pathEditor = new PathEditor(curveDrawer::drawPoints);
+	PointEditor pointEditor = new PointEditor(controlPoints, curveDrawer::drawPoints);
+	PathEditor pathEditor = new PathEditor(pathControlPoints, curveDrawer::drawPoints);
 	GridEditor gridEditor = new GridEditor(curveDrawer::drawPoints);
 	SelectionEditor selectionEditor = new SelectionEditor(curveDrawer::drawSelection);
 	Rotator rotator = new Rotator(curveDrawer::drawPoints);
-	TangentEditor tangentEditor = new TangentEditor(curveDrawer::drawPoints, tangentDrawer::drawTangent);
+	TangentEditor tangentEditor = new TangentEditor(controlPoints, curveDrawer::drawPoints, tangentDrawer::drawTangent);
 	ImageAdjusterView imageAdjusterView = new ImageAdjusterView(new Image(new File(IMAGE_FILE).toURI().toString()));
 
 	SurfaceMeshView meshView = new SurfaceMeshView();
@@ -57,8 +57,7 @@ public class MainApp extends Application
 	private Scene scene;
 
 	@Override
-	public void start(Stage primaryStage) throws Exception
-	{
+	public void start(Stage primaryStage) throws Exception {
 		this.stage = primaryStage;
 		scene = new Scene(group, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
@@ -80,8 +79,7 @@ public class MainApp extends Application
 
 	}
 
-	private ToolBar initToolbar()
-	{
+	private ToolBar initToolbar() {
 		Button tbCurveEditor = new Button("CurveEditor");
 		tbCurveEditor.setOnAction(event -> {
 			pointEditor.activate(scene);
@@ -133,11 +131,15 @@ public class MainApp extends Application
 		Button tbSave = new Button("Save");
 		tbSave.setOnAction(event -> save(stage));
 
-		return new ToolBar(tbCurveEditor, tbImageAdjuster, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor, tbPathEditor, tbMeshView, tbLoad, tbSave);
+		CheckBox checkBox = new CheckBox();
+		checkBox.setText("Edit Path");
+		checkBox.setOnMouseClicked(event -> tangentEditor.setControlPoints(checkBox.isSelected() ? pathControlPoints : controlPoints));
+		tbSave.setOnAction(event -> save(stage));
+
+		return new ToolBar(tbCurveEditor, tbImageAdjuster, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor, tbPathEditor, tbMeshView, tbLoad, tbSave, checkBox);
 	}
 
-	private void save(Stage stage)
-	{
+	private void save(Stage stage) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Load Project");
 
@@ -145,8 +147,7 @@ public class MainApp extends Application
 		// fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Painter Project (.prj)", "*.prj"));
 		File file = fileChooser.showSaveDialog(stage);
-		if (file == null)
-		{
+		if (file == null) {
 			return;
 		}
 		Project project = new Project();
@@ -159,8 +160,7 @@ public class MainApp extends Application
 		project.save(file);
 	}
 
-	private void load(Stage stage)
-	{
+	private void load(Stage stage) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Load Project");
 
@@ -168,8 +168,7 @@ public class MainApp extends Application
 		// fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Painter Project (.prj)", "*.prj"));
 		File file = fileChooser.showOpenDialog(stage);
-		if (file == null)
-		{
+		if (file == null) {
 			return;
 		}
 		Project project = new Project();
@@ -187,8 +186,7 @@ public class MainApp extends Application
 		curveDrawer.drawPoints(controlPoints);
 	}
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		launch(args);
 	}
 }
