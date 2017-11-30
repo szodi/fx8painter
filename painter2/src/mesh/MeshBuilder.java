@@ -57,7 +57,13 @@ public class MeshBuilder
 	{
 		Map<ControlPoint, Path> controlPointPathMap = new HashMap<>();
 		Path path = Path.create(MainApp.pathControlPoints);
-		controlPointPathMap.put(MainApp.controlPoints.get(0), path);
+		for (ControlPoint controlPoint : MainApp.controlPoints)
+		{
+			Path pathClone = path.clone();
+			ControlPoint pathHead = pathClone.getHead();
+			pathClone.translate(controlPoint.getX() - pathHead.getX(), controlPoint.getY() - pathHead.getY(), controlPoint.getZ() - pathHead.getZ());
+			controlPointPathMap.put(controlPoint, pathClone);
+		}
 		TunnelCreator tunnelCreator = new TunnelCreator(controlPointPathMap);
 		TriangleMesh tunnelMesh = new TriangleMesh();
 		tunnelMesh.getPoints().addAll(tunnelCreator.createPoints());
