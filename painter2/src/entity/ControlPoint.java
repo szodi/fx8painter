@@ -40,6 +40,20 @@ public class ControlPoint extends MutablePoint3D
 		tangents.remove(neighbour);
 	}
 
+	public void deleteTangents()
+	{
+		tangents.clear();
+	}
+
+	public void deleteTangentsRecursively()
+	{
+		for (ControlPoint neighbour : tangents.keySet())
+		{
+			neighbour.deleteTangent(this);
+		}
+		tangents.clear();
+	}
+
 	public Set<ControlPoint> getNeighbours()
 	{
 		return tangents.keySet();

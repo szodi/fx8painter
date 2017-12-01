@@ -29,7 +29,7 @@ import editor.SelectionEditor;
 import editor.TangentDrawer;
 import editor.TangentEditor;
 import entity.ControlPoint;
-import image.ImageAdjusterView;
+import image.ImageEditor;
 import io.Project;
 import mesh.SurfaceMeshView;
 
@@ -51,7 +51,7 @@ public class MainApp extends Application
 	SelectionEditor selectionEditor = new SelectionEditor(curveDrawer::drawSelection);
 	Rotator rotator = new Rotator(curveDrawer::drawPoints);
 	TangentEditor tangentEditor = new TangentEditor(controlPoints, curveDrawer::drawPoints, tangentDrawer::drawTangent);
-	ImageAdjusterView imageAdjusterView = new ImageAdjusterView(new Image(new File(IMAGE_FILE).toURI().toString()));
+	ImageEditor imageAdjusterView = new ImageEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
 
 	SurfaceMeshView meshView = new SurfaceMeshView();
 
@@ -96,6 +96,7 @@ public class MainApp extends Application
 			scene.setOnMouseDragged(imageAdjusterView);
 			scene.setOnMousePressed(imageAdjusterView);
 			scene.setOnScroll(imageAdjusterView);
+			scene.setOnKeyPressed(imageAdjusterView);
 		});
 
 		Button tbGridDrawer = new Button("GridDrawer");

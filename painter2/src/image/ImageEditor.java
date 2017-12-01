@@ -4,20 +4,23 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 
-public class ImageAdjusterView extends ImageView implements EventHandler<Event>
+public class ImageEditor extends ImageView implements EventHandler<Event>
 {
 	Image image;
 	double clickedX = 0.0;
 	double clickedY = 0.0;
 	Scale scale = new Scale(1.0, 1.0);
+	int mirrorFactor = 1;
 
-	public ImageAdjusterView(Image image)
+	public ImageEditor(Image image)
 	{
 		super(image);
 		getTransforms().add(scale);
@@ -35,6 +38,10 @@ public class ImageAdjusterView extends ImageView implements EventHandler<Event>
 		else if (event instanceof ScrollEvent)
 		{
 			handle((ScrollEvent)event);
+		}
+		else if (event instanceof KeyEvent)
+		{
+			handle((KeyEvent)event);
 		}
 	}
 
@@ -68,20 +75,36 @@ public class ImageAdjusterView extends ImageView implements EventHandler<Event>
 	{
 		if (scrollEvent.getEventType() == ScrollEvent.SCROLL)
 		{
-			scale.setX(Math.max(0, scale.getX() + scrollEvent.getDeltaY() / 500));
+			if (mirrorFactor > 0)
+			{
+				scale.setX(Math.max(0, scale.getX() + scrollEvent.getDeltaY() / 500));
+			}
+			else
+			{
+				scale.setX(Math.min(0, scale.getX() - scrollEvent.getDeltaY() / 500));
+			}
 			scale.setY(Math.max(0, scale.getY() + scrollEvent.getDeltaY() / 500));
+		}
+	}
+
+	public void handle(KeyEvent keyEvent)
+	{
+		if (keyEvent.getCode() == KeyCode.M)
+		{
+			scale.setX(-scale.getX());
+			mirrorFactor = -mirrorFactor;
 		}
 	}
 
 	protected void handlePrimaryMousePressed(MouseEvent event)
 	{
-		clickedX = event.getX() - getX();
+		clickedX = event.getX() - mirrorFactor * getX();
 		clickedY = event.getY() - getY();
 	}
 
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		setX(event.getX() - clickedX);
+		setX(mirrorFactor * (event.getX() - clickedX));
 		setY(event.getY() - clickedY);
 	}
 
@@ -93,7 +116,8 @@ public class ImageAdjusterView extends ImageView implements EventHandler<Event>
 
 	protected void handleSecondaryMouseDragged(MouseEvent event)
 	{
-		setRotate((event.getX() - clickedX) / 10);
+		setRotate(getRotate() + (event.getX() - clickedX) / 10);
+		clickedX = event.getX();
 	}
 
 	public Scale getScale()

@@ -9,7 +9,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
-import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
@@ -32,7 +31,7 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 	public SurfaceMeshView()
 	{
 		setCullFace(CullFace.NONE);
-		setDrawMode(DrawMode.LINE);
+		// setDrawMode(DrawMode.LINE);
 		getTransforms().add(new Affine());
 
 	}

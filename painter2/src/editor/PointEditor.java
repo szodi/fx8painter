@@ -1,33 +1,77 @@
 package editor;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import entity.ControlPoint;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+
+import entity.ControlPoint;
 import test.MainApp;
 
-public class PointEditor extends PathEditor {
-	public PointEditor(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer) {
+public class PointEditor extends PathEditor
+{
+	public PointEditor(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer)
+	{
 		super(controlPoints, curveDrawer);
 	}
 
 	@Override
-	protected void handlePrimaryMousePressed(MouseEvent event) {
+	public void activate(Scene scene)
+	{
+		super.activate(scene);
+		scene.setOnKeyPressed(this::handleKeyPressed);
+	}
+
+	private void handleKeyPressed(KeyEvent keyEvent)
+	{
+		if (keyEvent.getCode() == KeyCode.DELETE)
+		{
+			for (Iterator<ControlPoint> iterator = controlPoints.iterator(); iterator.hasNext();)
+			{
+				ControlPoint controlPoint = (ControlPoint)iterator.next();
+				if (controlPoint.isSelected())
+				{
+					if (MainApp.actualControlPoint == controlPoint)
+					{
+						MainApp.actualControlPoint = null;
+					}
+					controlPoint.deleteTangentsRecursively();
+					iterator.remove();
+				}
+			}
+			curveDrawer.accept(controlPoints);
+		}
+	}
+
+	@Override
+	protected void handlePrimaryMousePressed(MouseEvent event)
+	{
 		controlPoint = getControlPointAt(event.getX(), event.getY());
-		if (controlPoint == null) {
-			if (!event.isControlDown()) {
+		if (controlPoint == null)
+		{
+			if (!event.isControlDown())
+			{
 				controlPoint = new ControlPoint(event.getX(), event.getY(), event.getZ());
 				controlPoints.add(controlPoint);
 			}
-		} else {
-			if (event.isControlDown()) {
+		}
+		else
+		{
+			if (event.isControlDown())
+			{
 				controlPoint.setSelected(!controlPoint.isSelected());
-			} else {
+			}
+			else
+			{
 				controlPoints.forEach(cp -> cp.setSelected(false));
 			}
 		}
-		if (event.isShiftDown() && MainApp.actualControlPoint != null) {
+		if (event.isShiftDown() && MainApp.actualControlPoint != null)
+		{
 			MainApp.actualControlPoint.setTangent(controlPoint, controlPoint);
 			controlPoint.setTangent(MainApp.actualControlPoint, MainApp.actualControlPoint);
 		}

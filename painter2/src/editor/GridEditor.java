@@ -14,7 +14,7 @@ import test.MainApp;
 public class GridEditor extends AbstractEditor
 {
 	public static int horizontalPointsCount = 3;
-	public static int verticalPointsCount = 3;
+	public static int verticalPointsCount = 7;
 
 	List<ControlPoint> points;
 	Rectangle rectangle = new Rectangle();
