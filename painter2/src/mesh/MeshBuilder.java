@@ -21,7 +21,6 @@ public class MeshBuilder
 
 	public Mesh buildMesh(boolean grabImage)
 	{
-
 		TriangleMesh merged = createTunnel();
 		// TriangleMesh merged = createCoonsPatch();
 		if (grabImage)
