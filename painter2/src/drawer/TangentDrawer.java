@@ -1,12 +1,14 @@
-package editor;
+package drawer;
 
-import entity.ControlPoint;
-import entity.MutablePoint3D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class TangentDrawer {
+import entity.ControlPoint;
+import entity.MutablePoint3D;
+
+public class TangentDrawer
+{
 	public static final int DOT_SIZE = 9;
 	public static final int HALF_DOT_SIZE = DOT_SIZE / 2;
 
@@ -16,15 +18,20 @@ public class TangentDrawer {
 	private static final Color tangentLineColor = Color.MAGENTA;
 
 	GraphicsContext gc;
+	CurveDrawer curveDrawer;
 
-	public TangentDrawer(Canvas canvas) {
+	public TangentDrawer(Canvas canvas, CurveDrawer curveDrawer)
+	{
 		gc = canvas.getGraphicsContext2D();
+		this.curveDrawer = curveDrawer;
 	}
 
-	public void drawTangent(ControlPoint controlPoint, ControlPoint neighbour) {
+	public void drawTangent(ControlPoint controlPoint, ControlPoint neighbour)
+	{
 		gc.setFill(controlPointColor);
-		gc.fillRect(controlPoint.getX() - HALF_DOT_SIZE, controlPoint.getY() - HALF_DOT_SIZE, DOT_SIZE, DOT_SIZE);
-		if (controlPoint.getNeighbours().contains(neighbour)) {
+		curveDrawer.drawControlPoint(controlPoint);
+		if (controlPoint.getNeighbours().contains(neighbour))
+		{
 			MutablePoint3D tangent = controlPoint.getTangent(neighbour);
 			gc.setFill(neighbourPointColor);
 			gc.fillRect(neighbour.getX() - HALF_DOT_SIZE, neighbour.getY() - HALF_DOT_SIZE, DOT_SIZE, DOT_SIZE);

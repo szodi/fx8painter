@@ -1,12 +1,15 @@
 package editor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
+import drawer.CurveDrawer;
 import entity.ControlPoint;
 import test.MainApp;
 import tools.Tools;
@@ -15,6 +18,8 @@ public abstract class AbstractEditor implements EventHandler<MouseEvent>
 {
 	protected double clickedX;
 	protected double clickedY;
+
+	protected List<ControlPoint> controlPoints = new ArrayList<>();
 
 	protected ControlPoint controlPoint;
 

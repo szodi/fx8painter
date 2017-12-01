@@ -9,19 +9,19 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
 import entity.ControlPoint;
-import test.MainApp;
 
 public class GridEditor extends AbstractEditor
 {
 	public static int horizontalPointsCount = 3;
 	public static int verticalPointsCount = 7;
 
-	List<ControlPoint> points;
-	Rectangle rectangle = new Rectangle();
+	private List<ControlPoint> points;
+	private Rectangle rectangle = new Rectangle();
 	private Consumer<List<ControlPoint>> curveDrawer;
 
-	public GridEditor(Consumer<List<ControlPoint>> curveDrawer)
+	public GridEditor(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer)
 	{
+		this.controlPoints = controlPoints;
 		this.curveDrawer = curveDrawer;
 	}
 
@@ -29,14 +29,14 @@ public class GridEditor extends AbstractEditor
 	public void activate(Scene scene)
 	{
 		super.activate(scene);
-		curveDrawer.accept(MainApp.controlPoints);
+		curveDrawer.accept(controlPoints);
 	}
 
 	@Override
 	public void handle(MouseEvent mouseEvent)
 	{
 		super.handle(mouseEvent);
-		curveDrawer.accept(MainApp.controlPoints);
+		curveDrawer.accept(controlPoints);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class GridEditor extends AbstractEditor
 		points = createDefaultControlPoints();
 		clickedX = event.getX();
 		clickedY = event.getY();
-		MainApp.controlPoints.addAll(points);
+		controlPoints.addAll(points);
 	}
 
 	@Override

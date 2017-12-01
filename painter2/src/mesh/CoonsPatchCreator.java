@@ -2,7 +2,7 @@ package mesh;
 
 import javafx.geometry.Point2D;
 
-import editor.CurveDrawer;
+import drawer.CurveDrawer;
 import entity.ControlPoint;
 import entity.MutablePoint3D;
 import tools.Tools;

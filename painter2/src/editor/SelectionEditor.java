@@ -1,11 +1,13 @@
 package editor;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
+import entity.ControlPoint;
 import test.MainApp;
 
 public class SelectionEditor extends AbstractEditor
@@ -13,8 +15,9 @@ public class SelectionEditor extends AbstractEditor
 	private Consumer<Rectangle> rectangleProcessor;
 	Rectangle rectangle = new Rectangle();
 
-	public SelectionEditor(Consumer<Rectangle> rectangleProcessor)
+	public SelectionEditor(List<ControlPoint> controlPoints, Consumer<Rectangle> rectangleProcessor)
 	{
+		this.controlPoints = controlPoints;
 		this.rectangleProcessor = rectangleProcessor;
 	}
 
@@ -41,7 +44,7 @@ public class SelectionEditor extends AbstractEditor
 		controlPoint = getControlPointAt(event.getX(), event.getY());
 		if (!event.isControlDown())
 		{
-			MainApp.controlPoints.forEach(cp -> cp.setSelected(cp == controlPoint));
+			controlPoints.forEach(cp -> cp.setSelected(cp == controlPoint));
 		}
 		if (event.isControlDown() && controlPoint != null)
 		{
@@ -58,7 +61,7 @@ public class SelectionEditor extends AbstractEditor
 			rectangle.setY(Math.min(clickedY, event.getY()));
 			rectangle.setWidth(Math.abs(event.getX() - clickedX));
 			rectangle.setHeight(Math.abs(event.getY() - clickedY));
-			MainApp.controlPoints.forEach(cp -> cp.setSelected(rectangle.contains(cp.getX(), cp.getY())));
+			controlPoints.forEach(cp -> cp.setSelected(rectangle.contains(cp.getX(), cp.getY())));
 		}
 	}
 

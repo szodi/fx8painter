@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -16,17 +17,20 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import editor.CurveDrawer;
+import drawer.CurveDrawer;
+import drawer.TangentDrawer;
 import editor.GridEditor;
 import editor.PathEditor;
 import editor.PointEditor;
 import editor.Rotator;
 import editor.SelectionEditor;
-import editor.TangentDrawer;
 import editor.TangentEditor;
 import entity.ControlPoint;
 import image.ImageEditor;
@@ -44,14 +48,14 @@ public class MainApp extends Application
 
 	Group group = new Group();
 	CurveDrawer curveDrawer = new CurveDrawer(canvas);
-	TangentDrawer tangentDrawer = new TangentDrawer(canvas);
+	TangentDrawer tangentDrawer = new TangentDrawer(canvas, curveDrawer);
 	PointEditor pointEditor = new PointEditor(controlPoints, curveDrawer::drawPoints);
 	PathEditor pathEditor = new PathEditor(pathControlPoints, curveDrawer::drawPoints);
-	GridEditor gridEditor = new GridEditor(curveDrawer::drawPoints);
-	SelectionEditor selectionEditor = new SelectionEditor(curveDrawer::drawSelection);
-	Rotator rotator = new Rotator(curveDrawer::drawPoints);
+	GridEditor gridEditor = new GridEditor(controlPoints, curveDrawer::drawPoints);
+	SelectionEditor selectionEditor = new SelectionEditor(controlPoints, curveDrawer::drawSelectorRectangle);
+	Rotator rotator = new Rotator(controlPoints, curveDrawer::drawPoints);
 	TangentEditor tangentEditor = new TangentEditor(controlPoints, curveDrawer::drawPoints, tangentDrawer::drawTangent);
-	ImageEditor imageAdjusterView = new ImageEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
+	ImageEditor imageEditor = new ImageEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
 
 	SurfaceMeshView meshView = new SurfaceMeshView();
 
@@ -64,14 +68,17 @@ public class MainApp extends Application
 		this.stage = primaryStage;
 		scene = new Scene(group, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
+		canvas.setOnDragOver(this::mouseDragOver);
+		canvas.setOnDragDropped(this::mouseDragDropped);
+
 		canvas.setWidth(scene.getWidth());
 		canvas.setHeight(scene.getHeight());
 
 		pointEditor.activate(scene);
 
-		imageAdjusterView.setTranslateZ(800);
+		imageEditor.setTranslateZ(800);
 
-		group.getChildren().add(imageAdjusterView);
+		group.getChildren().add(imageEditor);
 		group.getChildren().add(meshView);
 		group.getChildren().add(canvas);
 		group.getChildren().add(initToolbar());
@@ -80,6 +87,35 @@ public class MainApp extends Application
 		// primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		primaryStage.show();
 
+	}
+
+	private void mouseDragDropped(final DragEvent event)
+	{
+		final Dragboard db = event.getDragboard();
+		boolean success = false;
+		if (db.hasFiles())
+		{
+			success = true;
+			final File file = db.getFiles().get(0);
+			Platform.runLater(() -> imageEditor.setImage(new Image(file.toURI().toString())));
+		}
+		event.setDropCompleted(success);
+		event.consume();
+
+	}
+
+	private void mouseDragOver(final DragEvent e)
+	{
+		final Dragboard db = e.getDragboard();
+		final boolean isAccepted = db.getFiles().get(0).getName().toLowerCase().endsWith(".png") || db.getFiles().get(0).getName().toLowerCase().endsWith(".jpeg") || db.getFiles().get(0).getName().toLowerCase().endsWith(".jpg");
+		if (db.hasFiles() && isAccepted)
+		{
+			e.acceptTransferModes(TransferMode.COPY);
+		}
+		else
+		{
+			e.consume();
+		}
 	}
 
 	private ToolBar initToolbar()
@@ -92,11 +128,11 @@ public class MainApp extends Application
 
 		Button tbImageAdjuster = new Button("ImageAdjuster");
 		tbImageAdjuster.setOnAction(event -> {
-			scene.setOnMouseMoved(imageAdjusterView);
-			scene.setOnMouseDragged(imageAdjusterView);
-			scene.setOnMousePressed(imageAdjusterView);
-			scene.setOnScroll(imageAdjusterView);
-			scene.setOnKeyPressed(imageAdjusterView);
+			scene.setOnMouseMoved(imageEditor);
+			scene.setOnMouseDragged(imageEditor);
+			scene.setOnMousePressed(imageEditor);
+			scene.setOnScroll(imageEditor);
+			scene.setOnKeyPressed(imageEditor);
 		});
 
 		Button tbGridDrawer = new Button("GridDrawer");
@@ -125,7 +161,7 @@ public class MainApp extends Application
 			SnapshotParameters sp = new SnapshotParameters();
 			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
 
-			WritableImage cropped = imageAdjusterView.snapshot(sp, null);
+			WritableImage cropped = imageEditor.snapshot(sp, null);
 			meshView.activate(scene, cropped);
 			meshView.setVisible(true);
 		});
@@ -160,10 +196,10 @@ public class MainApp extends Application
 		Project project = new Project();
 		project.setImage(IMAGE_FILE);
 		project.setControlPoints(controlPoints);
-		project.setImageScaleX(imageAdjusterView.getScale().getX());
-		project.setImageScaleY(imageAdjusterView.getScale().getY());
-		project.setImageX(imageAdjusterView.getX());
-		project.setImageY(imageAdjusterView.getY());
+		project.setImageScaleX(imageEditor.getScale().getX());
+		project.setImageScaleY(imageEditor.getScale().getY());
+		project.setImageX(imageEditor.getX());
+		project.setImageY(imageEditor.getY());
 		project.save(file);
 	}
 
@@ -183,13 +219,13 @@ public class MainApp extends Application
 		Project project = new Project();
 		project.load(file);
 		IMAGE_FILE = project.getImage();
-		Scale scale = imageAdjusterView.getScale();
+		Scale scale = imageEditor.getScale();
 		scale.setPivotX(scene.getWidth() / 2);
 		scale.setPivotY(scene.getHeight() / 2);
 		scale.setX(project.getImageScaleX());
 		scale.setY(project.getImageScaleY());
-		imageAdjusterView.setX(project.getImageX());
-		imageAdjusterView.setY(project.getImageY());
+		imageEditor.setX(project.getImageX());
+		imageEditor.setY(project.getImageY());
 		controlPoints.clear();
 		controlPoints.addAll(project.getControlPoints());
 		curveDrawer.drawPoints(controlPoints);

@@ -1,6 +1,5 @@
 package editor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -13,7 +12,6 @@ import test.MainApp;
 public class PathEditor extends AbstractEditor
 {
 	protected Consumer<List<ControlPoint>> curveDrawer;
-	protected List<ControlPoint> controlPoints = new ArrayList<>();
 
 	public PathEditor(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer)
 	{
