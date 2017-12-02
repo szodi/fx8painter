@@ -2,7 +2,7 @@ package mesh;
 
 import javafx.collections.ObservableFloatArray;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
@@ -36,10 +36,10 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 
 	}
 
-	public void activate(Scene scene, Image image)
+	public void activate(Canvas canvas, Image image)
 	{
-		width = scene.getWidth();
-		height = scene.getHeight();
+		width = canvas.getWidth();
+		height = canvas.getHeight();
 		MeshBuilder meshBuilder = new MeshBuilder();
 		if (mesh == null)
 		{
@@ -56,10 +56,10 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 			mesh.getTexCoords().addAll(texCoords);
 		}
 		super.setMesh(mesh);
-		scene.setOnMouseMoved(this);
-		scene.setOnMousePressed(this);
-		scene.setOnMouseDragged(this);
-		scene.setOnMouseReleased(this);
+		canvas.setOnMouseMoved(this);
+		canvas.setOnMousePressed(this);
+		canvas.setOnMouseDragged(this);
+		canvas.setOnMouseReleased(this);
 
 	}
 

@@ -2,6 +2,7 @@ package image;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -9,8 +10,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 
 public class ImageEditor extends ImageView implements EventHandler<Event>
 {
@@ -18,19 +21,24 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 	double clickedX = 0.0;
 	double clickedY = 0.0;
 	Scale scale = new Scale(1.0, 1.0);
+	Rotate rotate = new Rotate();
+	Translate translate = new Translate();
 	int mirrorFactor = 1;
+
+	Rectangle clipRect = new Rectangle();
+
+	Point2D localPoint;
 
 	public ImageEditor(Image image)
 	{
 		super(image);
 		getTransforms().add(scale);
-		setRotationAxis(Rotate.Z_AXIS);
+		getTransforms().add(rotate);
+		getTransforms().add(translate);
 	}
 
 	public void handle(Event event)
 	{
-		scale.setPivotX(getScene().getWidth() / 2);
-		scale.setPivotY(getScene().getHeight() / 2);
 		if (event instanceof MouseEvent)
 		{
 			handle((MouseEvent)event);
@@ -73,6 +81,8 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 
 	public void handle(ScrollEvent scrollEvent)
 	{
+		scale.setPivotX(scrollEvent.getX());
+		scale.setPivotY(scrollEvent.getY());
 		if (scrollEvent.getEventType() == ScrollEvent.SCROLL)
 		{
 			if (mirrorFactor > 0)
@@ -98,14 +108,14 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 
 	protected void handlePrimaryMousePressed(MouseEvent event)
 	{
-		clickedX = event.getX() - mirrorFactor * getX();
-		clickedY = event.getY() - getY();
+		localPoint = parentToLocal(event.getX(), event.getY());
 	}
 
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		setX(mirrorFactor * (event.getX() - clickedX));
-		setY(event.getY() - clickedY);
+		Point2D dragged = parentToLocal(event.getX(), event.getY());
+		translate.setX(translate.getX() + dragged.getX() - localPoint.getX());
+		translate.setY(translate.getY() + dragged.getY() - localPoint.getY());
 	}
 
 	protected void handleSecondaryMousePressed(MouseEvent event)
@@ -116,7 +126,7 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 
 	protected void handleSecondaryMouseDragged(MouseEvent event)
 	{
-		setRotate(getRotate() + (event.getX() - clickedX) / 10);
+		rotate.setAngle(rotate.getAngle() + (event.getX() - clickedX) / 10);
 		clickedX = event.getX();
 	}
 

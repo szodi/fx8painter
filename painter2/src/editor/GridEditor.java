@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
@@ -26,9 +26,9 @@ public class GridEditor extends AbstractEditor
 	}
 
 	@Override
-	public void activate(Scene scene)
+	public void activate(Canvas canvas)
 	{
-		super.activate(scene);
+		super.activate(canvas);
 		curveDrawer.accept(controlPoints);
 	}
 

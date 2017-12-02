@@ -7,7 +7,6 @@ import java.util.List;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SnapshotParameters;
@@ -20,6 +19,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -46,7 +47,6 @@ public class MainApp extends Application
 	public static Canvas canvas = new Canvas();
 	public static ControlPoint actualControlPoint = null;
 
-	Group group = new Group();
 	CurveDrawer curveDrawer = new CurveDrawer(canvas);
 	TangentDrawer tangentDrawer = new TangentDrawer(canvas, curveDrawer);
 	PointEditor pointEditor = new PointEditor(controlPoints, curveDrawer::drawPoints);
@@ -61,12 +61,19 @@ public class MainApp extends Application
 
 	private Stage stage;
 	private Scene scene;
+	private AnchorPane anchorPane;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
 		this.stage = primaryStage;
-		scene = new Scene(group, 1920, 1080, true, SceneAntialiasing.BALANCED);
+
+		anchorPane = new AnchorPane(imageEditor, meshView, canvas);
+
+		BorderPane borderPane = new BorderPane(anchorPane);
+		borderPane.setTop(initToolbar());
+
+		scene = new Scene(borderPane, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
 		canvas.setOnDragOver(this::mouseDragOver);
 		canvas.setOnDragDropped(this::mouseDragDropped);
@@ -74,14 +81,8 @@ public class MainApp extends Application
 		canvas.setWidth(scene.getWidth());
 		canvas.setHeight(scene.getHeight());
 
-		pointEditor.activate(scene);
+		pointEditor.activate(canvas);
 
-		imageEditor.setTranslateZ(800);
-
-		group.getChildren().add(imageEditor);
-		group.getChildren().add(meshView);
-		group.getChildren().add(canvas);
-		group.getChildren().add(initToolbar());
 		primaryStage.setScene(scene);
 		// primaryStage.setFullScreen(true);
 		// primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
@@ -122,37 +123,37 @@ public class MainApp extends Application
 	{
 		Button tbCurveEditor = new Button("CurveEditor");
 		tbCurveEditor.setOnAction(event -> {
-			pointEditor.activate(scene);
+			pointEditor.activate(canvas);
 			meshView.setVisible(false);
 		});
 
 		Button tbImageAdjuster = new Button("ImageAdjuster");
 		tbImageAdjuster.setOnAction(event -> {
-			scene.setOnMouseMoved(imageEditor);
-			scene.setOnMouseDragged(imageEditor);
-			scene.setOnMousePressed(imageEditor);
-			scene.setOnScroll(imageEditor);
+			canvas.setOnMouseMoved(imageEditor);
+			canvas.setOnMouseDragged(imageEditor);
+			canvas.setOnMousePressed(imageEditor);
+			canvas.setOnScroll(imageEditor);
 			scene.setOnKeyPressed(imageEditor);
 		});
 
 		Button tbGridDrawer = new Button("GridDrawer");
-		tbGridDrawer.setOnAction(event -> gridEditor.activate(scene));
+		tbGridDrawer.setOnAction(event -> gridEditor.activate(canvas));
 
 		Button tbSelectionDrawer = new Button("SelectionDrawer");
-		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(scene));
+		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(canvas));
 
 		Button tbRotator = new Button("Rotator");
-		tbRotator.setOnAction(event -> rotator.activate(scene));
+		tbRotator.setOnAction(event -> rotator.activate(canvas));
 
 		Button tbTangentEditor = new Button("TangentEditor");
 		tbTangentEditor.setOnAction(event -> {
-			tangentEditor.activate(scene);
+			tangentEditor.activate(canvas);
 			meshView.setVisible(false);
 		});
 
 		Button tbPathEditor = new Button("PathEditor");
 		tbPathEditor.setOnAction(event -> {
-			pathEditor.activate(scene);
+			pathEditor.activate(canvas);
 			meshView.setVisible(false);
 		});
 
@@ -162,7 +163,7 @@ public class MainApp extends Application
 			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
 
 			WritableImage cropped = imageEditor.snapshot(sp, null);
-			meshView.activate(scene, cropped);
+			meshView.activate(canvas, cropped);
 			meshView.setVisible(true);
 		});
 
