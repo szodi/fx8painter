@@ -52,6 +52,8 @@ public class CurveDrawer
 	void drawControlPoint(ControlPoint controlPoint)
 	{
 		gc.fillRect(controlPoint.getX() - HALF_DOT_SIZE, controlPoint.getY() - HALF_DOT_SIZE, DOT_SIZE, DOT_SIZE);
+		gc.setStroke(Color.BLACK);
+		gc.strokeRect(controlPoint.getX() - HALF_DOT_SIZE, controlPoint.getY() - HALF_DOT_SIZE, DOT_SIZE, DOT_SIZE);
 	}
 
 	private void drawSegment(ControlPoint controlPoint, ControlPoint neighbour)
