@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javafx.event.EventHandler;
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
@@ -23,12 +23,12 @@ public abstract class AbstractEditor implements EventHandler<MouseEvent>
 
 	protected ControlPoint controlPoint;
 
-	public void activate(Canvas canvas)
+	public void activate(Node node)
 	{
-		canvas.setOnMouseMoved(this);
-		canvas.setOnMousePressed(this);
-		canvas.setOnMouseDragged(this);
-		canvas.setOnMouseReleased(this);
+		node.setOnMouseMoved(this);
+		node.setOnMousePressed(this);
+		node.setOnMouseDragged(this);
+		node.setOnMouseReleased(this);
 	}
 
 	public ControlPoint getControlPointAt(double x, double y)

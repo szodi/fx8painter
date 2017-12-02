@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javafx.geometry.Point3D;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Rotate;
@@ -23,9 +24,9 @@ public class Rotator extends AbstractEditor
 	}
 
 	@Override
-	public void activate(Canvas canvas)
+	public void activate(Node node)
 	{
-		super.activate(canvas);
+		super.activate(node);
 		curveDrawer.accept(controlPoints);
 	}
 

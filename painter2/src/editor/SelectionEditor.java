@@ -3,7 +3,7 @@ package editor;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
@@ -22,9 +22,9 @@ public class SelectionEditor extends AbstractEditor
 	}
 
 	@Override
-	public void activate(Canvas canvas)
+	public void activate(Node node)
 	{
-		super.activate(canvas);
+		super.activate(node);
 		rectangleProcessor.accept(rectangle);
 	}
 

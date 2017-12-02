@@ -10,9 +10,12 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
@@ -20,7 +23,9 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -70,10 +75,15 @@ public class MainApp extends Application
 
 		anchorPane = new AnchorPane(imageEditor, meshView, canvas);
 
-		BorderPane borderPane = new BorderPane(anchorPane);
-		borderPane.setTop(initToolbar());
+		VBox vbox = new VBox();
+		vbox.setMaxHeight(500);
+		vbox.getChildren().add(initAccordion());
 
-		scene = new Scene(borderPane, 1920, 1080, true, SceneAntialiasing.BALANCED);
+		SubScene scene3d = new SubScene(anchorPane, 1920, 1080, true, SceneAntialiasing.BALANCED);
+
+		HBox hBox = new HBox(vbox, scene3d);
+
+		scene = new Scene(hBox, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
 		canvas.setOnDragOver(this::mouseDragOver);
 		canvas.setOnDragDropped(this::mouseDragDropped);
@@ -81,11 +91,9 @@ public class MainApp extends Application
 		canvas.setWidth(scene.getWidth());
 		canvas.setHeight(scene.getHeight());
 
-		pointEditor.activate(canvas);
+		pointEditor.activate(anchorPane);
 
 		primaryStage.setScene(scene);
-		// primaryStage.setFullScreen(true);
-		// primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		primaryStage.show();
 
 	}
@@ -98,7 +106,10 @@ public class MainApp extends Application
 		{
 			success = true;
 			final File file = db.getFiles().get(0);
-			Platform.runLater(() -> imageEditor.setImage(new Image(file.toURI().toString())));
+			Platform.runLater(() -> {
+				imageEditor.resetTransforms();
+				imageEditor.setImage(new Image(file.toURI().toString()));
+			});
 		}
 		event.setDropCompleted(success);
 		event.consume();
@@ -119,41 +130,35 @@ public class MainApp extends Application
 		}
 	}
 
-	private ToolBar initToolbar()
+	private Accordion initAccordion()
 	{
 		Button tbCurveEditor = new Button("CurveEditor");
 		tbCurveEditor.setOnAction(event -> {
-			pointEditor.activate(canvas);
+			pointEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
 
 		Button tbImageAdjuster = new Button("ImageAdjuster");
-		tbImageAdjuster.setOnAction(event -> {
-			canvas.setOnMouseMoved(imageEditor);
-			canvas.setOnMouseDragged(imageEditor);
-			canvas.setOnMousePressed(imageEditor);
-			canvas.setOnScroll(imageEditor);
-			scene.setOnKeyPressed(imageEditor);
-		});
+		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
 
 		Button tbGridDrawer = new Button("GridDrawer");
-		tbGridDrawer.setOnAction(event -> gridEditor.activate(canvas));
+		tbGridDrawer.setOnAction(event -> gridEditor.activate(anchorPane));
 
 		Button tbSelectionDrawer = new Button("SelectionDrawer");
-		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(canvas));
+		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
 
 		Button tbRotator = new Button("Rotator");
-		tbRotator.setOnAction(event -> rotator.activate(canvas));
+		tbRotator.setOnAction(event -> rotator.activate(anchorPane));
 
 		Button tbTangentEditor = new Button("TangentEditor");
 		tbTangentEditor.setOnAction(event -> {
-			tangentEditor.activate(canvas);
+			tangentEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
 
 		Button tbPathEditor = new Button("PathEditor");
 		tbPathEditor.setOnAction(event -> {
-			pathEditor.activate(canvas);
+			pathEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
 
@@ -163,7 +168,79 @@ public class MainApp extends Application
 			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
 
 			WritableImage cropped = imageEditor.snapshot(sp, null);
-			meshView.activate(canvas, cropped);
+			meshView.activate(anchorPane, cropped);
+			meshView.setVisible(true);
+		});
+
+		Button tbLoad = new Button("Load");
+		tbLoad.setOnAction(event -> load(stage));
+
+		Button tbSave = new Button("Save");
+		tbSave.setOnAction(event -> save(stage));
+
+		CheckBox checkBox = new CheckBox();
+		checkBox.setText("Edit Path");
+		checkBox.setOnMouseClicked(event -> tangentEditor.setControlPoints(checkBox.isSelected() ? pathControlPoints : controlPoints));
+		tbSave.setOnAction(event -> save(stage));
+
+		GridPane gridPane = new GridPane();
+		gridPane.addRow(0, tbCurveEditor);
+		gridPane.addRow(1, tbGridDrawer);
+		gridPane.addRow(2, tbSelectionDrawer);
+		gridPane.addRow(3, tbRotator);
+		gridPane.addRow(4, tbTangentEditor);
+		gridPane.addRow(5, tbPathEditor);
+
+		TitledPane tpEditor = new TitledPane("Editor", gridPane);
+
+		TitledPane tpImageAdjuster = new TitledPane("ImageAdjuster", tbImageAdjuster);
+
+		TitledPane tpMeshView = new TitledPane("MeshView", tbMeshView);
+		TitledPane tpLoad = new TitledPane("Load", tbLoad);
+		TitledPane tpSave = new TitledPane("Save", tbSave);
+		TitledPane tpCheckBox = new TitledPane("checkBox", checkBox);
+		return new Accordion(tpEditor, tpImageAdjuster, tpMeshView, tpLoad, tpSave, tpCheckBox);
+	}
+
+	private ToolBar initToolbar()
+	{
+		Button tbCurveEditor = new Button("CurveEditor");
+		tbCurveEditor.setOnAction(event -> {
+			pointEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbImageAdjuster = new Button("ImageAdjuster");
+		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
+
+		Button tbGridDrawer = new Button("GridDrawer");
+		tbGridDrawer.setOnAction(event -> gridEditor.activate(anchorPane));
+
+		Button tbSelectionDrawer = new Button("SelectionDrawer");
+		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
+
+		Button tbRotator = new Button("Rotator");
+		tbRotator.setOnAction(event -> rotator.activate(anchorPane));
+
+		Button tbTangentEditor = new Button("TangentEditor");
+		tbTangentEditor.setOnAction(event -> {
+			tangentEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbPathEditor = new Button("PathEditor");
+		tbPathEditor.setOnAction(event -> {
+			pathEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbMeshView = new Button("MeshView");
+		tbMeshView.setOnAction(event -> {
+			SnapshotParameters sp = new SnapshotParameters();
+			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
+
+			WritableImage cropped = imageEditor.snapshot(sp, null);
+			meshView.activate(anchorPane, cropped);
 			meshView.setVisible(true);
 		});
 

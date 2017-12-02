@@ -3,6 +3,7 @@ package image;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -35,6 +36,26 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 		getTransforms().add(scale);
 		getTransforms().add(rotate);
 		getTransforms().add(translate);
+	}
+
+	public void activate(Node node)
+	{
+		node.setOnMouseMoved(this);
+		node.setOnMouseDragged(this);
+		node.setOnMousePressed(this);
+		node.setOnScroll(this);
+		node.getScene().setOnKeyPressed(this);
+	}
+
+	public void resetTransforms()
+	{
+		scale.setX(1.0);
+		scale.setY(1.0);
+		scale.setZ(1.0);
+		rotate.setAngle(0.0);
+		translate.setX(0.0);
+		translate.setY(0.0);
+		translate.setZ(0.0);
 	}
 
 	public void handle(Event event)

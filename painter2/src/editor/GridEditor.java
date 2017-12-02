@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
@@ -12,8 +12,8 @@ import entity.ControlPoint;
 
 public class GridEditor extends AbstractEditor
 {
-	public static int horizontalPointsCount = 3;
-	public static int verticalPointsCount = 7;
+	public static int horizontalPointsCount = 5;
+	public static int verticalPointsCount = 5;
 
 	private List<ControlPoint> points;
 	private Rectangle rectangle = new Rectangle();
@@ -26,9 +26,9 @@ public class GridEditor extends AbstractEditor
 	}
 
 	@Override
-	public void activate(Canvas canvas)
+	public void activate(Node node)
 	{
-		super.activate(canvas);
+		super.activate(node);
 		curveDrawer.accept(controlPoints);
 	}
 

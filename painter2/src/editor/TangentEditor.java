@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
 import entity.ControlPoint;
@@ -24,9 +24,9 @@ public class TangentEditor extends AbstractEditor
 	}
 
 	@Override
-	public void activate(Canvas canvas)
+	public void activate(Node node)
 	{
-		super.activate(canvas);
+		super.activate(node);
 		curveDrawer.accept(controlPoints);
 	}
 

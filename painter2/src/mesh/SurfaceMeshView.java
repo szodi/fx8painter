@@ -2,7 +2,8 @@ package mesh;
 
 import javafx.collections.ObservableFloatArray;
 import javafx.event.EventHandler;
-import javafx.scene.canvas.Canvas;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
@@ -12,7 +13,6 @@ import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
-import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 
 import tools.Tools;
@@ -25,21 +25,20 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 	PhongMaterial material = new PhongMaterial();
 	private TriangleMesh mesh;
 
-	double width;
-	double height;
+	private Rotate rotate1 = new Rotate(0, 960, 540, 100.0, Rotate.Y_AXIS);
+	private Rotate rotate2 = new Rotate(0, 960, 540, 100.0, Rotate.X_AXIS);
 
 	public SurfaceMeshView()
 	{
 		setCullFace(CullFace.NONE);
 		// setDrawMode(DrawMode.LINE);
-		getTransforms().add(new Affine());
+		getTransforms().add(rotate1);
+		getTransforms().add(rotate2);
 
 	}
 
-	public void activate(Canvas canvas, Image image)
+	public void activate(Node node, Image image)
 	{
-		width = canvas.getWidth();
-		height = canvas.getHeight();
 		MeshBuilder meshBuilder = new MeshBuilder();
 		if (mesh == null)
 		{
@@ -56,11 +55,17 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 			mesh.getTexCoords().addAll(texCoords);
 		}
 		super.setMesh(mesh);
-		canvas.setOnMouseMoved(this);
-		canvas.setOnMousePressed(this);
-		canvas.setOnMouseDragged(this);
-		canvas.setOnMouseReleased(this);
+		node.setOnMouseMoved(this);
+		node.setOnMousePressed(this);
+		node.setOnMouseDragged(this);
+		node.setOnMouseReleased(this);
 
+		Bounds bounds = getLayoutBounds();
+		rotate1.setPivotX(bounds.getMinX() + bounds.getWidth() / 2);
+		rotate1.setPivotY(bounds.getMinY() + bounds.getHeight() / 2);
+		rotate2.setPivotX(bounds.getMinX() + bounds.getWidth() / 2);
+		rotate2.setPivotY(bounds.getMinY() + bounds.getHeight() / 2);
+		setTranslateZ(-500);
 	}
 
 	public Image getTextureImageClip(TriangleMesh mesh, Image image)
@@ -76,13 +81,8 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 	{
 		if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED)
 		{
-			Rotate r1 = new Rotate(-mouseEvent.getSceneX() + clickedX, width / 2, height / 2, 0.0, Rotate.Y_AXIS);
-			getTransforms().set(0, r1.createConcatenation(getTransforms().get(0)));
-
-			Rotate r2 = new Rotate(mouseEvent.getSceneY() - clickedY, width / 2, height / 2, 0.0, Rotate.X_AXIS);
-			getTransforms().set(0, r2.createConcatenation(getTransforms().get(0)));
+			rotate1.setAngle(-mouseEvent.getSceneX() + clickedX);
+			rotate2.setAngle(mouseEvent.getSceneY() - clickedY);
 		}
-		clickedX = mouseEvent.getSceneX();
-		clickedY = mouseEvent.getSceneY();
 	}
 }

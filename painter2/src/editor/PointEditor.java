@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -20,10 +20,10 @@ public class PointEditor extends PathEditor
 	}
 
 	@Override
-	public void activate(Canvas canvas)
+	public void activate(Node node)
 	{
-		super.activate(canvas);
-		canvas.setOnKeyPressed(this::handleKeyPressed);
+		super.activate(node);
+		node.getScene().setOnKeyPressed(this::handleKeyPressed);
 	}
 
 	private void handleKeyPressed(KeyEvent keyEvent)
