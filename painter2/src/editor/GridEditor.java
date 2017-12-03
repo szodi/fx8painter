@@ -13,7 +13,7 @@ import entity.ControlPoint;
 public class GridEditor extends AbstractEditor
 {
 	public static int horizontalPointsCount = 3;
-	public static int verticalPointsCount = 3;
+	public static int verticalPointsCount = 5;
 
 	private List<ControlPoint> points;
 	private Rectangle rectangle = new Rectangle();

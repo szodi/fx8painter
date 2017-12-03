@@ -7,26 +7,39 @@ import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 
 import entity.ControlPoint;
 import entity.MutablePoint3D;
-import test.MainApp;
+import tools.Tools;
 
 public class Rotator extends AbstractEditor
 {
 	private Consumer<List<ControlPoint>> curveDrawer;
+	Rotate rotate1 = new Rotate(0, Rotate.Y_AXIS);
+	Rotate rotate2 = new Rotate(0, Rotate.X_AXIS);
+	private Canvas canvas = new Canvas();
 
 	public Rotator(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer)
 	{
 		this.controlPoints = controlPoints;
 		this.curveDrawer = curveDrawer;
+		canvas.getTransforms().add(rotate1);
+		canvas.getTransforms().add(rotate2);
 	}
 
 	@Override
 	public void activate(Node node)
 	{
 		super.activate(node);
+		Rectangle controlPointsBounds = Tools.getControlPointBounds(controlPoints);
+		canvas.setWidth(controlPointsBounds.getWidth());
+		canvas.setHeight(controlPointsBounds.getWidth());
+		rotate1.setPivotX(controlPointsBounds.getX() + controlPointsBounds.getWidth() / 2);
+		rotate1.setPivotY(controlPointsBounds.getY() + controlPointsBounds.getHeight() / 2);
+		rotate2.setPivotX(controlPointsBounds.getX() + controlPointsBounds.getWidth() / 2);
+		rotate2.setPivotY(controlPointsBounds.getY() + controlPointsBounds.getHeight() / 2);
 		curveDrawer.accept(controlPoints);
 	}
 
@@ -42,22 +55,21 @@ public class Rotator extends AbstractEditor
 	@Override
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		rotateCurve(Rotate.Y_AXIS, (clickedX - event.getX()) / 8, false);
-		rotateCurve(Rotate.X_AXIS, (event.getY() - clickedY) / 8, false);
+		rotate1.setAngle((clickedX - event.getX()) / 8);
+		rotate2.setAngle((event.getY() - clickedY) / 8);
+		rotateCurve(false);
 	}
 
 	@Override
 	protected void handleSecondaryMouseDragged(MouseEvent event)
 	{
-		rotateCurve(Rotate.Y_AXIS, (clickedX - event.getX()) / 8, true);
-		rotateCurve(Rotate.X_AXIS, (event.getY() - clickedY) / 8, true);
+		rotate1.setAngle((clickedX - event.getX()) / 8);
+		rotate2.setAngle((event.getY() - clickedY) / 8);
+		rotateCurve(true);
 	}
 
-	public void rotateCurve(Point3D rotationAxis, double angle, boolean onlySelected)
+	public void rotateCurve(boolean onlySelected)
 	{
-		Canvas canvas = new Canvas(MainApp.canvas.getWidth(), MainApp.canvas.getHeight());
-		Rotate rotate = new Rotate(angle, canvas.getWidth() / 2, canvas.getHeight() / 2, 0.0, rotationAxis);
-		canvas.getTransforms().add(rotate);
 		for (ControlPoint controlPoint : controlPoints)
 		{
 			if (!onlySelected || (onlySelected && controlPoint.isSelected()))
