@@ -74,7 +74,7 @@ public class TangentEditor extends AbstractEditor
 	@Override
 	protected void handleSecondaryMouseDragged(MouseEvent event)
 	{
-		if (controlPoint != null && neighbour != null)
+		if (controlPoint != null && neighbour != null && controlPoint.getTangent(neighbour) != null)
 		{
 			controlPoint.getTangent(neighbour).add(event.getX() - clickedX, event.getY() - clickedY, 0.0);
 			clickedX = event.getX();

@@ -11,7 +11,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -20,13 +19,10 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 {
 	Image image;
 	double clickedX = 0.0;
-	double clickedY = 0.0;
 	Scale scale = new Scale(1.0, 1.0);
 	Rotate rotate = new Rotate();
 	Translate translate = new Translate();
 	int mirrorFactor = 1;
-
-	Rectangle clipRect = new Rectangle();
 
 	Point2D localPoint;
 
@@ -141,14 +137,13 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 
 	protected void handleSecondaryMousePressed(MouseEvent event)
 	{
-		clickedX = event.getX();
-		clickedY = event.getY();
+		clickedX = event.getSceneX();
 	}
 
 	protected void handleSecondaryMouseDragged(MouseEvent event)
 	{
-		rotate.setAngle(rotate.getAngle() + (event.getX() - clickedX) / 10);
-		clickedX = event.getX();
+		rotate.setAngle(rotate.getAngle() + (event.getSceneX() - clickedX) / 10);
+		clickedX = event.getSceneX();
 	}
 
 	public Scale getScale()

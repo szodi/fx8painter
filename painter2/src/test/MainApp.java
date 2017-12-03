@@ -32,6 +32,7 @@ import javafx.stage.Stage;
 
 import drawer.CurveDrawer;
 import drawer.TangentDrawer;
+import editor.GlobalEditor;
 import editor.GridEditor;
 import editor.PathEditor;
 import editor.PointEditor;
@@ -66,34 +67,39 @@ public class MainApp extends Application
 
 	private Stage stage;
 	private Scene scene;
-	private AnchorPane anchorPane;
+	private AnchorPane anchorPane = new AnchorPane();
+	GlobalEditor globalEditor = new GlobalEditor(anchorPane);
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
 		this.stage = primaryStage;
 
-		anchorPane = new AnchorPane(imageEditor, meshView, canvas);
+		anchorPane.getChildren().add(imageEditor);
+		anchorPane.getChildren().add(meshView);
+		anchorPane.getChildren().add(canvas);
 
 		VBox vbox = new VBox();
 		vbox.setMaxHeight(500);
 		vbox.getChildren().add(initAccordion());
 
-		SubScene scene3d = new SubScene(anchorPane, 1920, 1080, true, SceneAntialiasing.BALANCED);
+		SubScene editorScene = new SubScene(anchorPane, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
-		HBox hBox = new HBox(vbox, scene3d);
+		HBox hBox = new HBox(vbox, editorScene);
 
 		scene = new Scene(hBox, 1920, 1080, true, SceneAntialiasing.BALANCED);
 
 		canvas.setOnDragOver(this::mouseDragOver);
 		canvas.setOnDragDropped(this::mouseDragDropped);
 
-		canvas.setWidth(scene.getWidth());
-		canvas.setHeight(scene.getHeight());
+		canvas.setWidth(5000);
+		canvas.setHeight(5000);
 
 		pointEditor.activate(anchorPane);
 
 		primaryStage.setScene(scene);
+		// primaryStage.setFullScreen(true);
+		// primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		primaryStage.show();
 
 	}
@@ -162,6 +168,12 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
+		Button tbGlobalEditor = new Button("GlobalEditor");
+		tbGlobalEditor.setOnAction(event -> {
+			globalEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
 		Button tbMeshView = new Button("MeshView");
 		tbMeshView.setOnAction(event -> {
 			SnapshotParameters sp = new SnapshotParameters();
@@ -190,6 +202,7 @@ public class MainApp extends Application
 		gridPane.addRow(3, tbRotator);
 		gridPane.addRow(4, tbTangentEditor);
 		gridPane.addRow(5, tbPathEditor);
+		gridPane.addRow(6, tbGlobalEditor);
 
 		TitledPane tpEditor = new TitledPane("Editor", gridPane);
 
