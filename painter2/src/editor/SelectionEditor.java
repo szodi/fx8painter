@@ -1,7 +1,7 @@
 package editor;
 
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -12,10 +12,10 @@ import test.MainApp;
 
 public class SelectionEditor extends AbstractEditor
 {
-	private Consumer<Rectangle> rectangleProcessor;
+	private BiConsumer<Rectangle, List<ControlPoint>> rectangleProcessor;
 	Rectangle rectangle = new Rectangle();
 
-	public SelectionEditor(List<ControlPoint> controlPoints, Consumer<Rectangle> rectangleProcessor)
+	public SelectionEditor(List<ControlPoint> controlPoints, BiConsumer<Rectangle, List<ControlPoint>> rectangleProcessor)
 	{
 		this.controlPoints = controlPoints;
 		this.rectangleProcessor = rectangleProcessor;
@@ -25,7 +25,7 @@ public class SelectionEditor extends AbstractEditor
 	public void activate(Node node)
 	{
 		super.activate(node);
-		rectangleProcessor.accept(rectangle);
+		rectangleProcessor.accept(rectangle, controlPoints);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class SelectionEditor extends AbstractEditor
 	{
 		MainApp.actualControlPoint = null;
 		super.handle(mouseEvent);
-		rectangleProcessor.accept(rectangle);
+		rectangleProcessor.accept(rectangle, controlPoints);
 	}
 
 	@Override
@@ -73,5 +73,15 @@ public class SelectionEditor extends AbstractEditor
 		rectangle.setWidth(0.0);
 		rectangle.setHeight(0.0);
 		controlPoint = null;
+	}
+
+	public BiConsumer<Rectangle, List<ControlPoint>> getRectangleProcessor()
+	{
+		return rectangleProcessor;
+	}
+
+	public void setRectangleProcessor(BiConsumer<Rectangle, List<ControlPoint>> rectangleProcessor)
+	{
+		this.rectangleProcessor = rectangleProcessor;
 	}
 }

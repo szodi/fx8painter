@@ -169,6 +169,7 @@ public class MainApp extends Application
 		Button tbCurveRotator = new Button("Curve");
 		tbCurveRotator.setOnAction(event -> {
 			rotator.setControlPoints(controlPoints);
+			rotator.setCurveDrawer(curveDrawer::drawPoints);
 			rotator.activate(anchorPane);
 			meshView.setVisible(false);
 		});
@@ -176,6 +177,7 @@ public class MainApp extends Application
 		Button tbPathRotator = new Button("Path");
 		tbPathRotator.setOnAction(event -> {
 			rotator.setControlPoints(pathControlPoints);
+			rotator.setCurveDrawer(pathDrawer::drawPoints);
 			rotator.activate(anchorPane);
 			meshView.setVisible(false);
 		});
@@ -183,6 +185,7 @@ public class MainApp extends Application
 		Button tbCurveSelector = new Button("Curve");
 		tbCurveSelector.setOnAction(event -> {
 			selectionEditor.setControlPoints(controlPoints);
+			selectionEditor.setRectangleProcessor(curveDrawer::drawSelectorRectangle);
 			selectionEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
@@ -190,6 +193,7 @@ public class MainApp extends Application
 		Button tbPathSelector = new Button("Path");
 		tbPathSelector.setOnAction(event -> {
 			selectionEditor.setControlPoints(pathControlPoints);
+			selectionEditor.setRectangleProcessor(pathDrawer::drawSelectorRectangle);
 			selectionEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});

@@ -55,16 +55,16 @@ public class Rotator extends AbstractEditor
 	@Override
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		rotate1.setAngle((clickedX - event.getX()) / 8);
-		rotate2.setAngle((event.getY() - clickedY) / 8);
+		rotate1.setAngle((clickedX - event.getX()) / 5);
+		rotate2.setAngle((event.getY() - clickedY) / 5);
 		rotateCurve(false);
 	}
 
 	@Override
 	protected void handleSecondaryMouseDragged(MouseEvent event)
 	{
-		rotate1.setAngle((clickedX - event.getX()) / 8);
-		rotate2.setAngle((event.getY() - clickedY) / 8);
+		rotate1.setAngle((clickedX - event.getX()) / 5);
+		rotate2.setAngle((event.getY() - clickedY) / 5);
 		rotateCurve(true);
 	}
 
@@ -87,5 +87,15 @@ public class Rotator extends AbstractEditor
 				controlPoint.setZ(rotated.getZ());
 			}
 		}
+	}
+
+	public Consumer<List<ControlPoint>> getCurveDrawer()
+	{
+		return curveDrawer;
+	}
+
+	public void setCurveDrawer(Consumer<List<ControlPoint>> curveDrawer)
+	{
+		this.curveDrawer = curveDrawer;
 	}
 }

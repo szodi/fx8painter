@@ -66,9 +66,9 @@ public class CurveDrawer
 		}
 	}
 
-	public void drawSelectorRectangle(Rectangle rectangle)
+	public void drawSelectorRectangle(Rectangle rectangle, List<ControlPoint> controlPoints)
 	{
-		drawPoints(MainApp.controlPoints);
+		drawPoints(controlPoints);
 		if (rectangle == null)
 		{
 			return;

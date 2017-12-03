@@ -21,7 +21,10 @@ public class TunnelBuilder extends MeshBuilder
 			Path pathClone = path.clone();
 			ControlPoint pathHead = pathClone.getHead();
 			pathClone.translate(controlPoint.getX() - pathHead.getX(), controlPoint.getY() - pathHead.getY(), controlPoint.getZ() - pathHead.getZ());
-			controlPointPathMap.put(controlPoint, pathClone);
+			if (!controlPointPathMap.containsKey(controlPoint))
+			{
+				controlPointPathMap.put(controlPoint, pathClone);
+			}
 		}
 		Tunnel tunnelCreator = new Tunnel(controlPointPathMap);
 		TriangleMesh tunnelMesh = new TriangleMesh();
