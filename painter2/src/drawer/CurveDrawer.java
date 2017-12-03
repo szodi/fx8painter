@@ -19,29 +19,30 @@ public class CurveDrawer
 
 	public static final double smoothness = 0.02;
 
-	private static final Color SELECTION_COLOR = new Color(0, 0, 0.5, 0.5);
-	private static final Color ACTUAL_CONTROLPOINT_COLOR = Color.GREEN;
-	private static final Color SELECTED_CONTROLPOINT_COLOR = Color.DARKGOLDENROD;
-	private static final Color UNSELECTED_CONTROLPOINT_COLOR = Color.LIGHTCYAN;
+	protected Color selectionColor = new Color(0, 0, 0.5, 0.5);
+	protected Color actualControlPointColor = Color.GREEN;
+	protected Color selectedControlPointColor = Color.DARKGOLDENROD;
+	protected Color unselectedControlPointColor = Color.LIGHTCYAN;
 
-	Canvas canvas;
-	GraphicsContext gc;
+	protected Color controlPointBorder = Color.BLACK;
+	protected Color segmentColor = Color.BLUE;
+
+	protected GraphicsContext gc;
 
 	public CurveDrawer(Canvas canvas)
 	{
-		this.canvas = canvas;
 		gc = canvas.getGraphicsContext2D();
 	}
 
 	public void drawPoints(List<ControlPoint> points)
 	{
 		gc.setLineWidth(2);
-		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
 		for (ControlPoint controlPoint : points)
 		{
-			gc.setFill(controlPoint == MainApp.actualControlPoint ? ACTUAL_CONTROLPOINT_COLOR : (controlPoint.isSelected() ? SELECTED_CONTROLPOINT_COLOR : UNSELECTED_CONTROLPOINT_COLOR));
+			gc.setFill(controlPoint == MainApp.actualControlPoint ? actualControlPointColor : (controlPoint.isSelected() ? selectedControlPointColor : unselectedControlPointColor));
 			drawControlPoint(controlPoint);
-			gc.setStroke(Color.BLUE);
+			gc.setStroke(segmentColor);
 			for (ControlPoint neighbour : controlPoint.getNeighbours())
 			{
 				drawSegment(controlPoint, neighbour);
@@ -52,11 +53,11 @@ public class CurveDrawer
 	void drawControlPoint(ControlPoint controlPoint)
 	{
 		gc.fillRect(controlPoint.getX() - HALF_DOT_SIZE, controlPoint.getY() - HALF_DOT_SIZE, DOT_SIZE, DOT_SIZE);
-		gc.setStroke(Color.BLACK);
+		gc.setStroke(controlPointBorder);
 		gc.strokeRect(controlPoint.getX() - HALF_DOT_SIZE, controlPoint.getY() - HALF_DOT_SIZE, DOT_SIZE, DOT_SIZE);
 	}
 
-	private void drawSegment(ControlPoint controlPoint, ControlPoint neighbour)
+	protected void drawSegment(ControlPoint controlPoint, ControlPoint neighbour)
 	{
 		for (double t = 0.0; t < 1.0; t += smoothness)
 		{
@@ -72,7 +73,7 @@ public class CurveDrawer
 		{
 			return;
 		}
-		gc.setFill(SELECTION_COLOR);
+		gc.setFill(selectionColor);
 		gc.fillRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
 	}
 }

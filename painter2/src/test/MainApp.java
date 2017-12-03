@@ -29,6 +29,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import drawer.CurveDrawer;
+import drawer.PathDrawer;
 import drawer.TangentDrawer;
 import editor.GlobalEditor;
 import editor.GridEditor;
@@ -54,9 +55,10 @@ public class MainApp extends Application
 	public static ControlPoint actualControlPoint = null;
 
 	CurveDrawer curveDrawer = new CurveDrawer(canvas);
+	PathDrawer pathDrawer = new PathDrawer(canvas);
 	TangentDrawer tangentDrawer = new TangentDrawer(canvas, curveDrawer);
 	PointEditor pointEditor = new PointEditor(controlPoints, curveDrawer::drawPoints);
-	PathEditor pathEditor = new PathEditor(pathControlPoints, curveDrawer::drawPoints);
+	PathEditor pathEditor = new PathEditor(pathControlPoints, pathDrawer::drawPoints);
 	GridEditor gridEditor = new GridEditor(controlPoints, curveDrawer::drawPoints);
 	SelectionEditor selectionEditor = new SelectionEditor(controlPoints, curveDrawer::drawSelectorRectangle);
 	Rotator rotator = new Rotator(controlPoints, curveDrawer::drawPoints);
