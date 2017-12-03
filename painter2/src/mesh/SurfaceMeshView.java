@@ -37,13 +37,11 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 
 	}
 
-	public void activate(Node node, Image image)
+	public void activate(Node node, MeshBuilder meshBuilder, Image image)
 	{
-		MeshBuilder meshBuilder = new MeshBuilder();
 		if (mesh == null)
 		{
 			mesh = (TriangleMesh)meshBuilder.buildMesh(true);
-			// material.setDiffuseColor(Color.AQUAMARINE);
 			Image texture = getTextureImageClip(mesh, image);
 			material.setDiffuseMap(texture);
 			setMaterial(material);
@@ -79,10 +77,25 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 	@Override
 	public void handle(MouseEvent mouseEvent)
 	{
+		if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED)
+		{
+			handlePrimaryMousePressed(mouseEvent);
+		}
 		if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED)
 		{
-			rotate1.setAngle(-mouseEvent.getSceneX() + clickedX);
-			rotate2.setAngle(mouseEvent.getSceneY() - clickedY);
+			handlePrimaryMouseDragged(mouseEvent);
 		}
+	}
+
+	public void handlePrimaryMousePressed(MouseEvent event)
+	{
+		clickedX = event.getSceneX();
+		clickedY = event.getSceneY();
+	}
+
+	public void handlePrimaryMouseDragged(MouseEvent event)
+	{
+		rotate1.setAngle(-event.getSceneX() + clickedX);
+		rotate2.setAngle(event.getSceneY() - clickedY);
 	}
 }

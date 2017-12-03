@@ -11,13 +11,13 @@ import entity.Path;
 import test.MainApp;
 import tools.Tools;
 
-public class TunnelCreator
+public class Tunnel
 {
 	Map<ControlPoint, Path> controlPointPathMap;
 	double curveSmoothness = 0.1;
 	double pathSmoothness = 0.01;
 
-	public TunnelCreator(Map<ControlPoint, Path> controlPointPathMap)
+	public Tunnel(Map<ControlPoint, Path> controlPointPathMap)
 	{
 		this.controlPointPathMap = controlPointPathMap;
 	}

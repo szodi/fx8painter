@@ -7,14 +7,14 @@ import entity.ControlPoint;
 import entity.MutablePoint3D;
 import tools.Tools;
 
-public class CoonsPatchCreator
+public class CoonsPatch
 {
 	ControlPoint leftTop;
 	ControlPoint rightTop;
 	ControlPoint leftBottom;
 	ControlPoint rightBottom;
 
-	public CoonsPatchCreator(ControlPoint leftTop, ControlPoint rightTop, ControlPoint leftBottom, ControlPoint rightBottom)
+	public CoonsPatch(ControlPoint leftTop, ControlPoint rightTop, ControlPoint leftBottom, ControlPoint rightBottom)
 	{
 		this.leftTop = leftTop;
 		this.rightTop = rightTop;

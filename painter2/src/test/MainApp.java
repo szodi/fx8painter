@@ -14,9 +14,7 @@ import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.DragEvent;
@@ -42,7 +40,9 @@ import editor.TangentEditor;
 import entity.ControlPoint;
 import image.ImageEditor;
 import io.Project;
+import mesh.CoonsPatchBuilder;
 import mesh.SurfaceMeshView;
+import mesh.TunnelBuilder;
 
 public class MainApp extends Application
 {
@@ -138,35 +138,43 @@ public class MainApp extends Application
 
 	private Accordion initAccordion()
 	{
-		Button tbCurveEditor = new Button("CurveEditor");
+		Button tbCurveEditor = new Button("Curve");
 		tbCurveEditor.setOnAction(event -> {
 			pointEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
 
-		Button tbImageAdjuster = new Button("ImageAdjuster");
-		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
-
-		Button tbGridDrawer = new Button("GridDrawer");
-		tbGridDrawer.setOnAction(event -> gridEditor.activate(anchorPane));
-
-		Button tbSelectionDrawer = new Button("SelectionDrawer");
-		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
-
-		Button tbRotator = new Button("Rotator");
-		tbRotator.setOnAction(event -> rotator.activate(anchorPane));
-
-		Button tbTangentEditor = new Button("TangentEditor");
-		tbTangentEditor.setOnAction(event -> {
-			tangentEditor.activate(anchorPane);
-			meshView.setVisible(false);
-		});
-
-		Button tbPathEditor = new Button("PathEditor");
+		Button tbPathEditor = new Button("Path");
 		tbPathEditor.setOnAction(event -> {
 			pathEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
+
+		Button tbCurveTangentEditor = new Button("CurveTangent");
+		tbCurveTangentEditor.setOnAction(event -> {
+			tangentEditor.setControlPoints(controlPoints);
+			tangentEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbPathTangentEditor = new Button("PathTangent");
+		tbPathTangentEditor.setOnAction(event -> {
+			tangentEditor.setControlPoints(pathControlPoints);
+			tangentEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbImageAdjuster = new Button("ImageEditor");
+		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
+
+		Button tbGridDrawer = new Button("GridEditor");
+		tbGridDrawer.setOnAction(event -> gridEditor.activate(anchorPane));
+
+		Button tbSelectionDrawer = new Button("Rectangle");
+		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
+
+		Button tbRotator = new Button("Rotator");
+		tbRotator.setOnAction(event -> rotator.activate(anchorPane));
 
 		Button tbGlobalEditor = new Button("GlobalEditor");
 		tbGlobalEditor.setOnAction(event -> {
@@ -174,13 +182,23 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
-		Button tbMeshView = new Button("MeshView");
-		tbMeshView.setOnAction(event -> {
+		Button tbCoonsPatch = new Button("Coon's patch");
+		tbCoonsPatch.setOnAction(event -> {
 			SnapshotParameters sp = new SnapshotParameters();
 			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
 
 			WritableImage cropped = imageEditor.snapshot(sp, null);
-			meshView.activate(anchorPane, cropped);
+			meshView.activate(anchorPane, new CoonsPatchBuilder(), cropped);
+			meshView.setVisible(true);
+		});
+
+		Button tbTunnel = new Button("Tunnel");
+		tbTunnel.setOnAction(event -> {
+			SnapshotParameters sp = new SnapshotParameters();
+			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
+
+			WritableImage cropped = imageEditor.snapshot(sp, null);
+			meshView.activate(anchorPane, new TunnelBuilder(), cropped);
 			meshView.setVisible(true);
 		});
 
@@ -190,85 +208,44 @@ public class MainApp extends Application
 		Button tbSave = new Button("Save");
 		tbSave.setOnAction(event -> save(stage));
 
-		CheckBox checkBox = new CheckBox();
-		checkBox.setText("Edit Path");
-		checkBox.setOnMouseClicked(event -> tangentEditor.setControlPoints(checkBox.isSelected() ? pathControlPoints : controlPoints));
-		tbSave.setOnAction(event -> save(stage));
+		GridPane pointEditorPane = new GridPane();
+		pointEditorPane.addRow(0, tbCurveEditor);
+		pointEditorPane.addRow(1, tbPathEditor);
 
-		GridPane gridPane = new GridPane();
-		gridPane.addRow(0, tbCurveEditor);
-		gridPane.addRow(1, tbGridDrawer);
-		gridPane.addRow(2, tbSelectionDrawer);
-		gridPane.addRow(3, tbRotator);
-		gridPane.addRow(4, tbTangentEditor);
-		gridPane.addRow(5, tbPathEditor);
-		gridPane.addRow(6, tbGlobalEditor);
+		GridPane tangentEditorPane = new GridPane();
+		tangentEditorPane.addRow(0, tbCurveTangentEditor);
+		tangentEditorPane.addRow(1, tbPathTangentEditor);
 
-		TitledPane tpEditor = new TitledPane("Editor", gridPane);
+		// GridPane gridEditorPane = new GridPane();
+		// gridEditorPane.addRow(0, tbGridDrawer);
+
+		GridPane meshViewPane = new GridPane();
+		meshViewPane.addRow(0, tbCoonsPatch);
+		meshViewPane.addRow(1, tbTunnel);
+
+		GridPane loadAndSavePane = new GridPane();
+		loadAndSavePane.addRow(0, tbLoad);
+		loadAndSavePane.addRow(1, tbSave);
+
+		TitledPane tpPointEditor = new TitledPane("Point", pointEditorPane);
+
+		TitledPane tpTangentEditor = new TitledPane("Tangent", tangentEditorPane);
+
+		TitledPane tpGridEditor = new TitledPane("Grid", tbGridDrawer);
+
+		TitledPane tpSelector = new TitledPane("Selector", tbSelectionDrawer);
+
+		TitledPane tpRotator = new TitledPane("Rotator", tbRotator);
 
 		TitledPane tpImageAdjuster = new TitledPane("ImageAdjuster", tbImageAdjuster);
 
-		TitledPane tpMeshView = new TitledPane("MeshView", tbMeshView);
-		TitledPane tpLoad = new TitledPane("Load", tbLoad);
-		TitledPane tpSave = new TitledPane("Save", tbSave);
-		TitledPane tpCheckBox = new TitledPane("checkBox", checkBox);
-		return new Accordion(tpEditor, tpImageAdjuster, tpMeshView, tpLoad, tpSave, tpCheckBox);
-	}
+		TitledPane tpMesh = new TitledPane("Mesh", meshViewPane);
 
-	private ToolBar initToolbar()
-	{
-		Button tbCurveEditor = new Button("CurveEditor");
-		tbCurveEditor.setOnAction(event -> {
-			pointEditor.activate(anchorPane);
-			meshView.setVisible(false);
-		});
+		TitledPane tpGlobalEditor = new TitledPane("Global", tbGlobalEditor);
 
-		Button tbImageAdjuster = new Button("ImageAdjuster");
-		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
+		TitledPane tpLoadAndSave = new TitledPane("Load/Save", loadAndSavePane);
 
-		Button tbGridDrawer = new Button("GridDrawer");
-		tbGridDrawer.setOnAction(event -> gridEditor.activate(anchorPane));
-
-		Button tbSelectionDrawer = new Button("SelectionDrawer");
-		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
-
-		Button tbRotator = new Button("Rotator");
-		tbRotator.setOnAction(event -> rotator.activate(anchorPane));
-
-		Button tbTangentEditor = new Button("TangentEditor");
-		tbTangentEditor.setOnAction(event -> {
-			tangentEditor.activate(anchorPane);
-			meshView.setVisible(false);
-		});
-
-		Button tbPathEditor = new Button("PathEditor");
-		tbPathEditor.setOnAction(event -> {
-			pathEditor.activate(anchorPane);
-			meshView.setVisible(false);
-		});
-
-		Button tbMeshView = new Button("MeshView");
-		tbMeshView.setOnAction(event -> {
-			SnapshotParameters sp = new SnapshotParameters();
-			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
-
-			WritableImage cropped = imageEditor.snapshot(sp, null);
-			meshView.activate(anchorPane, cropped);
-			meshView.setVisible(true);
-		});
-
-		Button tbLoad = new Button("Load");
-		tbLoad.setOnAction(event -> load(stage));
-
-		Button tbSave = new Button("Save");
-		tbSave.setOnAction(event -> save(stage));
-
-		CheckBox checkBox = new CheckBox();
-		checkBox.setText("Edit Path");
-		checkBox.setOnMouseClicked(event -> tangentEditor.setControlPoints(checkBox.isSelected() ? pathControlPoints : controlPoints));
-		tbSave.setOnAction(event -> save(stage));
-
-		return new ToolBar(tbCurveEditor, tbImageAdjuster, tbGridDrawer, tbSelectionDrawer, tbRotator, tbTangentEditor, tbPathEditor, tbMeshView, tbLoad, tbSave, checkBox);
+		return new Accordion(tpPointEditor, tpTangentEditor, tpGridEditor, tpSelector, tpRotator, tpImageAdjuster, tpMesh, tpGlobalEditor, tpLoadAndSave);
 	}
 
 	private void save(Stage stage)

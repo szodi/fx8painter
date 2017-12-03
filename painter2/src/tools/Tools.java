@@ -7,9 +7,7 @@ import java.util.Objects;
 import javafx.collections.ObservableFloatArray;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
-import javafx.scene.shape.ObservableFaceArray;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.TriangleMesh;
 
 import entity.ControlPoint;
 import entity.MutablePoint3D;
@@ -72,26 +70,6 @@ public class Tools
 			}
 		}
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-	}
-
-	public static TriangleMesh mergeMeshes(List<TriangleMesh> meshes)
-	{
-		TriangleMesh mergedMesh = new TriangleMesh();
-		ObservableFloatArray points = mergedMesh.getPoints();
-		ObservableFaceArray faces = mergedMesh.getFaces();
-		int faceOffset = 0;
-		for (TriangleMesh mesh : meshes)
-		{
-			points.addAll(mesh.getPoints());
-			ObservableFaceArray meshFaces = mesh.getFaces();
-			for (int i = 0; i < meshFaces.size(); i++)
-			{
-				meshFaces.set(i, meshFaces.get(i) + faceOffset);
-			}
-			faces.addAll(mesh.getFaces());
-			faceOffset += mesh.getPoints().size() / 3;
-		}
-		return mergedMesh;
 	}
 
 	public static MutablePoint3D getCurvePoint(List<ControlPoint> controlPoints, double t)
