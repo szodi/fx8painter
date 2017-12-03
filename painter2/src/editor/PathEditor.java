@@ -99,9 +99,4 @@ public class PathEditor extends AbstractEditor
 		clickedX = event.getX();
 		clickedY = event.getY();
 	}
-
-	public List<ControlPoint> getControlPoints()
-	{
-		return controlPoints;
-	}
 }

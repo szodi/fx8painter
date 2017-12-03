@@ -164,6 +164,34 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
+		Button tbCurveRotator = new Button("Curve");
+		tbCurveRotator.setOnAction(event -> {
+			rotator.setControlPoints(controlPoints);
+			rotator.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbPathRotator = new Button("Path");
+		tbPathRotator.setOnAction(event -> {
+			rotator.setControlPoints(pathControlPoints);
+			rotator.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbCurveSelector = new Button("Curve");
+		tbCurveSelector.setOnAction(event -> {
+			selectionEditor.setControlPoints(controlPoints);
+			selectionEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
+		Button tbPathSelector = new Button("Path");
+		tbPathSelector.setOnAction(event -> {
+			selectionEditor.setControlPoints(pathControlPoints);
+			selectionEditor.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
 		Button tbImageAdjuster = new Button("ImageEditor");
 		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
 
@@ -172,9 +200,6 @@ public class MainApp extends Application
 
 		Button tbSelectionDrawer = new Button("Rectangle");
 		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
-
-		Button tbRotator = new Button("Rotator");
-		tbRotator.setOnAction(event -> rotator.activate(anchorPane));
 
 		Button tbGlobalEditor = new Button("GlobalEditor");
 		tbGlobalEditor.setOnAction(event -> {
@@ -216,6 +241,14 @@ public class MainApp extends Application
 		tangentEditorPane.addRow(0, tbCurveTangentEditor);
 		tangentEditorPane.addRow(1, tbPathTangentEditor);
 
+		GridPane rotatorPane = new GridPane();
+		rotatorPane.addRow(0, tbCurveRotator);
+		rotatorPane.addRow(1, tbPathRotator);
+
+		GridPane selectorPane = new GridPane();
+		selectorPane.addRow(0, tbCurveSelector);
+		selectorPane.addRow(1, tbPathSelector);
+
 		// GridPane gridEditorPane = new GridPane();
 		// gridEditorPane.addRow(0, tbGridDrawer);
 
@@ -233,9 +266,9 @@ public class MainApp extends Application
 
 		TitledPane tpGridEditor = new TitledPane("Grid", tbGridDrawer);
 
-		TitledPane tpSelector = new TitledPane("Selector", tbSelectionDrawer);
+		TitledPane tpSelector = new TitledPane("Selector", selectorPane);
 
-		TitledPane tpRotator = new TitledPane("Rotator", tbRotator);
+		TitledPane tpRotator = new TitledPane("Rotator", rotatorPane);
 
 		TitledPane tpImageAdjuster = new TitledPane("ImageAdjuster", tbImageAdjuster);
 

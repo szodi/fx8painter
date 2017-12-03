@@ -81,15 +81,4 @@ public class TangentEditor extends AbstractEditor
 			clickedY = event.getY();
 		}
 	}
-
-	public List<ControlPoint> getControlPoints()
-	{
-		return controlPoints;
-	}
-
-	public void setControlPoints(List<ControlPoint> controlPoints)
-	{
-		this.controlPoints = controlPoints;
-	}
-
 }

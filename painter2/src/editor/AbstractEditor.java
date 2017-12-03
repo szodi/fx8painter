@@ -111,4 +111,14 @@ public abstract class AbstractEditor implements EventHandler<MouseEvent>
 	{
 		handlePrimaryMouseReleased(event);
 	}
+
+	public List<ControlPoint> getControlPoints()
+	{
+		return controlPoints;
+	}
+
+	public void setControlPoints(List<ControlPoint> controlPoints)
+	{
+		this.controlPoints = controlPoints;
+	}
 }

@@ -45,16 +45,15 @@ public class Path
 
 	public Path clone()
 	{
-		List<ControlPoint> sourceControlPoints = getControlPoints();
 		List<ControlPoint> clonedControlPoints = new ArrayList<>();
-		sourceControlPoints.forEach(controlPoint -> clonedControlPoints.add(new ControlPoint(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ())));
-		for (int i = 0; i < sourceControlPoints.size(); i++)
+		controlPoints.forEach(controlPoint -> clonedControlPoints.add(new ControlPoint(controlPoint.getX(), controlPoint.getY(), controlPoint.getZ())));
+		for (int i = 0; i < controlPoints.size(); i++)
 		{
-			ControlPoint sourceControlPoint = sourceControlPoints.get(i);
+			ControlPoint sourceControlPoint = controlPoints.get(i);
 			Set<ControlPoint> sourceNeighbours = sourceControlPoint.getNeighbours();
 			for (ControlPoint neighbour : sourceNeighbours)
 			{
-				int neighbourIndex = sourceControlPoints.indexOf(neighbour);
+				int neighbourIndex = controlPoints.indexOf(neighbour);
 				MutablePoint3D sourceTangent = sourceControlPoint.getTangent(neighbour);
 				clonedControlPoints.get(i).setTangent(clonedControlPoints.get(neighbourIndex), sourceTangent.clone());
 			}
@@ -139,10 +138,5 @@ public class Path
 	public List<ControlPoint> getControlPoints()
 	{
 		return controlPoints;
-	}
-
-	public void setControlPoints(List<ControlPoint> controlPoints)
-	{
-		this.controlPoints = controlPoints;
 	}
 }
