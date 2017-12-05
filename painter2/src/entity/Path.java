@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import tools.Tools;
+
 public class Path
 {
 	List<ControlPoint> controlPoints = new ArrayList<>();
@@ -46,6 +48,19 @@ public class Path
 			}
 		}
 		return new Path(controlPoints);
+	}
+
+	public List<MutablePoint3D> morph(Path path, double pathSmoothness, double morphState)
+	{
+		List<MutablePoint3D> morphPoints = new ArrayList<>();
+		for (double t = 0; t <= 1.0; t += pathSmoothness)
+		{
+			MutablePoint3D actualPathPoint = Tools.getCurvePoint(getControlPoints(), t);
+			MutablePoint3D otherPathPoint = Tools.getCurvePoint(path.getControlPoints(), t);
+			MutablePoint3D morphPoint = otherPathPoint.subtract(actualPathPoint).multiply(morphState).add(actualPathPoint);
+			morphPoints.add(morphPoint);
+		}
+		return morphPoints;
 	}
 
 	public Path clone()

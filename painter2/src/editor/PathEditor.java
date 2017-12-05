@@ -1,6 +1,5 @@
 package editor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -14,7 +13,6 @@ import test.MainApp;
 public class PathEditor extends AbstractEditor
 {
 	protected Consumer<List<ControlPoint>> curveDrawer;
-	private List<Path> paths = new ArrayList<>();
 	private Path activePath;
 
 	public PathEditor(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer)
@@ -47,7 +45,7 @@ public class PathEditor extends AbstractEditor
 			if (event.isShiftDown() || activePath == null)
 			{
 				activePath = new Path();
-				paths.add(activePath);
+				MainApp.paths.add(activePath);
 			}
 			if (!event.isControlDown())
 			{
@@ -79,7 +77,7 @@ public class PathEditor extends AbstractEditor
 
 	private Path getPath(ControlPoint controlPoint)
 	{
-		for (Path path : paths)
+		for (Path path : MainApp.paths)
 		{
 			if (path.getControlPoints().indexOf(controlPoint) > -1)
 			{

@@ -1,6 +1,6 @@
 package mesh;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javafx.scene.shape.TriangleMesh;
@@ -14,7 +14,7 @@ public class TunnelBuilder extends MeshBuilder
 	@Override
 	public TriangleMesh createMesh()
 	{
-		Map<ControlPoint, Path> controlPointPathMap = new HashMap<>();
+		Map<ControlPoint, Path> controlPointPathMap = new LinkedHashMap<>();
 		Path path = Path.create(MainApp.pathControlPoints);
 		for (ControlPoint controlPoint : MainApp.controlPoints)
 		{

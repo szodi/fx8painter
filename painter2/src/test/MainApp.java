@@ -39,6 +39,7 @@ import editor.Rotator;
 import editor.SelectionEditor;
 import editor.TangentEditor;
 import entity.ControlPoint;
+import entity.Path;
 import image.ImageEditor;
 import io.Project;
 import mesh.CoonsPatchBuilder;
@@ -50,6 +51,7 @@ public class MainApp extends Application
 	private static String IMAGE_FILE = "d:\\imagevenue\\Alisa_I\\84593_hegre-art.com_20171102\\031_alisa-soft-daylight-32-10000px.jpg";
 	public static List<ControlPoint> controlPoints = new ArrayList<>();
 	public static List<ControlPoint> pathControlPoints = new ArrayList<>();
+	public static List<Path> paths = new ArrayList<>();
 
 	public static Canvas canvas = new Canvas();
 	public static ControlPoint actualControlPoint = null;
