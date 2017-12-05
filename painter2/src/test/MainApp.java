@@ -152,14 +152,14 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
-		Button tbCurveTangentEditor = new Button("CurveTangent");
+		Button tbCurveTangentEditor = new Button("Curve");
 		tbCurveTangentEditor.setOnAction(event -> {
 			tangentEditor.setControlPoints(controlPoints);
 			tangentEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
 
-		Button tbPathTangentEditor = new Button("PathTangent");
+		Button tbPathTangentEditor = new Button("Path");
 		tbPathTangentEditor.setOnAction(event -> {
 			tangentEditor.setControlPoints(pathControlPoints);
 			tangentEditor.activate(anchorPane);
@@ -255,9 +255,6 @@ public class MainApp extends Application
 		selectorPane.addRow(0, tbCurveSelector);
 		selectorPane.addRow(1, tbPathSelector);
 
-		// GridPane gridEditorPane = new GridPane();
-		// gridEditorPane.addRow(0, tbGridDrawer);
-
 		GridPane meshViewPane = new GridPane();
 		meshViewPane.addRow(0, tbCoonsPatch);
 		meshViewPane.addRow(1, tbTunnel);
@@ -276,7 +273,7 @@ public class MainApp extends Application
 
 		TitledPane tpRotator = new TitledPane("Rotator", rotatorPane);
 
-		TitledPane tpImageAdjuster = new TitledPane("ImageAdjuster", tbImageAdjuster);
+		TitledPane tpImageAdjuster = new TitledPane("Image", tbImageAdjuster);
 
 		TitledPane tpMesh = new TitledPane("Mesh", meshViewPane);
 

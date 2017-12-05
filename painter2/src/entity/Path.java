@@ -10,7 +10,12 @@ import java.util.Set;
 
 public class Path
 {
-	List<ControlPoint> controlPoints;
+	List<ControlPoint> controlPoints = new ArrayList<>();
+
+	public Path()
+	{
+
+	}
 
 	public Path(List<ControlPoint> controlPoints)
 	{

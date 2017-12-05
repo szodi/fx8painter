@@ -1,5 +1,6 @@
 package editor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -7,11 +8,14 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
 import entity.ControlPoint;
+import entity.Path;
 import test.MainApp;
 
 public class PathEditor extends AbstractEditor
 {
 	protected Consumer<List<ControlPoint>> curveDrawer;
+	private List<Path> paths = new ArrayList<>();
+	private Path activePath;
 
 	public PathEditor(List<ControlPoint> controlPoints, Consumer<List<ControlPoint>> curveDrawer)
 	{
@@ -24,6 +28,7 @@ public class PathEditor extends AbstractEditor
 	{
 		super.activate(node);
 		curveDrawer.accept(controlPoints);
+		node.getScene().setOnKeyPressed(event -> System.out.println(activePath));
 	}
 
 	@Override
@@ -39,20 +44,27 @@ public class PathEditor extends AbstractEditor
 		controlPoint = getControlPointAt(controlPoints, event.getX(), event.getY());
 		if (controlPoint == null)
 		{
+			if (event.isShiftDown() || activePath == null)
+			{
+				activePath = new Path();
+				paths.add(activePath);
+			}
 			if (!event.isControlDown())
 			{
 				controlPoint = new ControlPoint(event.getX(), event.getY(), event.getZ());
-				if (!controlPoints.isEmpty())
+				if (!controlPoints.isEmpty() && !event.isShiftDown())
 				{
 					ControlPoint lastControlPoint = controlPoints.get(controlPoints.size() - 1);
 					lastControlPoint.setTangent(controlPoint, controlPoint);
 					controlPoint.setTangent(lastControlPoint, lastControlPoint);
 				}
 				controlPoints.add(controlPoint);
+				activePath.getControlPoints().add(controlPoint);
 			}
 		}
 		else
 		{
+			activePath = getPath(controlPoint);
 			if (event.isControlDown())
 			{
 				controlPoint.setSelected(!controlPoint.isSelected());
@@ -63,6 +75,18 @@ public class PathEditor extends AbstractEditor
 			}
 		}
 		MainApp.actualControlPoint = controlPoint;
+	}
+
+	private Path getPath(ControlPoint controlPoint)
+	{
+		for (Path path : paths)
+		{
+			if (path.getControlPoints().indexOf(controlPoint) > -1)
+			{
+				return path;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -89,6 +113,7 @@ public class PathEditor extends AbstractEditor
 			}
 			controlPoint.deleteTangentsRecursively();
 			controlPoints.remove(controlPoint);
+			getPath(controlPoint).removeControlPoint(controlPoint);
 		}
 	}
 
