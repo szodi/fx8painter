@@ -16,6 +16,8 @@ import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
@@ -88,6 +90,7 @@ public class MainApp extends Application
 		anchorPane.getChildren().add(canvas);
 
 		VBox vbox = new VBox();
+		vbox.setMinWidth(200);
 		vbox.setMaxHeight(500);
 		vbox.getChildren().add(initAccordion());
 
@@ -213,9 +216,6 @@ public class MainApp extends Application
 		Button tbImageAdjuster = new Button("ImageEditor");
 		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
 
-		Button tbGridDrawer = new Button("GridEditor");
-		tbGridDrawer.setOnAction(event -> gridEditor.activate(anchorPane));
-
 		Button tbSelectionDrawer = new Button("Rectangle");
 		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
 
@@ -261,6 +261,31 @@ public class MainApp extends Application
 		tangentEditorPane.addRow(0, tbCurveTangentEditor);
 		tangentEditorPane.addRow(1, tbPathTangentEditor);
 
+		TextField tfHorizontal = new TextField(String.valueOf(GridEditor.horizontalPointsCount));
+		tfHorizontal.setMaxWidth(50);
+		TextField tfVertical = new TextField(String.valueOf(GridEditor.verticalPointsCount));
+		tfVertical.setMaxWidth(50);
+		GridPane gridEditorPane = new GridPane();
+		gridEditorPane.add(new Label("Horizontal:"), 0, 0);
+		gridEditorPane.add(tfHorizontal, 1, 0);
+		gridEditorPane.add(new Label("Vertical:"), 0, 1);
+		gridEditorPane.add(tfVertical, 1, 1);
+
+		tfHorizontal.textProperty().addListener((obs, oldText, newText) -> {
+			int newHorizontal = Integer.parseInt(newText);
+			if (newHorizontal > 1)
+			{
+				GridEditor.horizontalPointsCount = newHorizontal;
+			}
+		});
+		tfVertical.textProperty().addListener((obs, oldText, newText) -> {
+			int newVertical = Integer.parseInt(newText);
+			if (newVertical > 1)
+			{
+				GridEditor.verticalPointsCount = newVertical;
+			}
+		});
+
 		GridPane rotatorPane = new GridPane();
 		rotatorPane.addRow(0, tbCurveRotator);
 		rotatorPane.addRow(1, tbPathRotator);
@@ -281,7 +306,14 @@ public class MainApp extends Application
 
 		TitledPane tpTangentEditor = new TitledPane("Tangent", tangentEditorPane);
 
-		TitledPane tpGridEditor = new TitledPane("Grid", tbGridDrawer);
+		TitledPane tpGridEditor = new TitledPane("Grid", gridEditorPane);
+
+		tpGridEditor.expandedProperty().addListener((obs, oldValue, newValue) -> {
+			if (newValue)
+			{
+				gridEditor.activate(anchorPane);
+			}
+		});
 
 		TitledPane tpSelector = new TitledPane("Selector", selectorPane);
 

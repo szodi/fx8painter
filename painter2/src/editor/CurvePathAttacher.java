@@ -53,7 +53,6 @@ public class CurvePathAttacher extends PathEditor
 			{
 				Path path = getPath(pathControlPoint);
 				MainApp.pathOfControlPoint.put(MainApp.actualControlPoint, path);
-				System.out.println(MainApp.pathOfControlPoint.size());
 			}
 		}
 	}
