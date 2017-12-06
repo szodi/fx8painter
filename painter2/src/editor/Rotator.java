@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
@@ -41,6 +43,7 @@ public class Rotator extends AbstractEditor
 		rotate2.setPivotX(controlPointsBounds.getX() + controlPointsBounds.getWidth() / 2);
 		rotate2.setPivotY(controlPointsBounds.getY() + controlPointsBounds.getHeight() / 2);
 		curveDrawer.accept(controlPoints);
+		node.getScene().setOnKeyPressed(this::handleKeyPressed);
 	}
 
 	@Override
@@ -66,6 +69,36 @@ public class Rotator extends AbstractEditor
 		rotate1.setAngle((clickedX - event.getX()) / 5);
 		rotate2.setAngle((event.getY() - clickedY) / 5);
 		rotateCurve(true);
+	}
+
+	protected void handleKeyPressed(KeyEvent event)
+	{
+		if (event.getCode() == KeyCode.X)
+		{
+			rotate2.setAxis(Rotate.X_AXIS);
+			canvas.getTransforms().clear();
+			canvas.getTransforms().add(rotate2);
+		}
+		else if (event.getCode() == KeyCode.Y)
+		{
+			rotate1.setAxis(Rotate.Y_AXIS);
+			canvas.getTransforms().clear();
+			canvas.getTransforms().add(rotate1);
+		}
+		else if (event.getCode() == KeyCode.Z)
+		{
+			rotate1.setAxis(Rotate.Z_AXIS);
+			canvas.getTransforms().clear();
+			canvas.getTransforms().add(rotate1);
+		}
+		else if (event.getCode() == KeyCode.ESCAPE)
+		{
+			rotate1.setAxis(Rotate.Y_AXIS);
+			rotate2.setAxis(Rotate.X_AXIS);
+			canvas.getTransforms().clear();
+			canvas.getTransforms().add(rotate1);
+			canvas.getTransforms().add(rotate2);
+		}
 	}
 
 	public void rotateCurve(boolean onlySelected)

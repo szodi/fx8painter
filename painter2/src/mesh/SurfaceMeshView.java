@@ -7,6 +7,8 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
@@ -57,6 +59,7 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 		node.setOnMousePressed(this);
 		node.setOnMouseDragged(this);
 		node.setOnMouseReleased(this);
+		node.getScene().setOnKeyPressed(this::handleKeyPressed);
 
 		Bounds bounds = getLayoutBounds();
 		rotate1.setPivotX(bounds.getMinX() + bounds.getWidth() / 2);
@@ -95,7 +98,40 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 
 	public void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		rotate1.setAngle(-event.getSceneX() + clickedX);
-		rotate2.setAngle(event.getSceneY() - clickedY);
+		rotate1.setAngle(rotate1.getAngle() + clickedX - event.getSceneX());
+		rotate2.setAngle(rotate2.getAngle() + event.getSceneY() - clickedY);
+		clickedX = event.getSceneX();
+		clickedY = event.getSceneY();
+	}
+
+	protected void handleKeyPressed(KeyEvent event)
+	{
+		System.out.println("SurfaceMeshView.handleKeyPressed()");
+		if (event.getCode() == KeyCode.X)
+		{
+			rotate2.setAxis(Rotate.X_AXIS);
+			getTransforms().clear();
+			getTransforms().add(rotate2);
+		}
+		else if (event.getCode() == KeyCode.Y)
+		{
+			rotate1.setAxis(Rotate.Y_AXIS);
+			getTransforms().clear();
+			getTransforms().add(rotate1);
+		}
+		else if (event.getCode() == KeyCode.Z)
+		{
+			rotate1.setAxis(Rotate.Z_AXIS);
+			getTransforms().clear();
+			getTransforms().add(rotate1);
+		}
+		else if (event.getCode() == KeyCode.ESCAPE)
+		{
+			rotate1.setAxis(Rotate.Y_AXIS);
+			rotate2.setAxis(Rotate.X_AXIS);
+			getTransforms().clear();
+			getTransforms().add(rotate1);
+			getTransforms().add(rotate2);
+		}
 	}
 }
