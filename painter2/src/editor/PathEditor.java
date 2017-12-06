@@ -26,7 +26,6 @@ public class PathEditor extends AbstractEditor
 	{
 		super.activate(node);
 		curveDrawer.accept(controlPoints);
-		node.getScene().setOnKeyPressed(event -> System.out.println(activePath));
 	}
 
 	@Override

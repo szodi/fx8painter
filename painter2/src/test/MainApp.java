@@ -2,7 +2,9 @@ package test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -29,8 +31,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import drawer.CurveDrawer;
-import drawer.PathDrawer;
 import drawer.TangentDrawer;
+import editor.CurvePathAttacher;
 import editor.GlobalEditor;
 import editor.GridEditor;
 import editor.PathEditor;
@@ -52,15 +54,17 @@ public class MainApp extends Application
 	public static List<ControlPoint> controlPoints = new ArrayList<>();
 	public static List<ControlPoint> pathControlPoints = new ArrayList<>();
 	public static List<Path> paths = new ArrayList<>();
+	public static Map<ControlPoint, Path> pathOfControlPoint = new HashMap<>();
 
 	public static Canvas canvas = new Canvas();
 	public static ControlPoint actualControlPoint = null;
+	public static ControlPoint actualPathControlPoint = null;
 
 	CurveDrawer curveDrawer = new CurveDrawer(canvas);
-	PathDrawer pathDrawer = new PathDrawer(canvas);
 	TangentDrawer tangentDrawer = new TangentDrawer(canvas, curveDrawer);
 	PointEditor pointEditor = new PointEditor(controlPoints, curveDrawer::drawPoints);
-	PathEditor pathEditor = new PathEditor(pathControlPoints, pathDrawer::drawPoints);
+	PathEditor pathEditor = new PathEditor(pathControlPoints, curveDrawer::drawPoints);
+	CurvePathAttacher curvePathAttacher = new CurvePathAttacher(controlPoints, pathControlPoints, curveDrawer::drawPoints);
 	GridEditor gridEditor = new GridEditor(controlPoints, curveDrawer::drawPoints);
 	SelectionEditor selectionEditor = new SelectionEditor(controlPoints, curveDrawer::drawSelectorRectangle);
 	Rotator rotator = new Rotator(controlPoints, curveDrawer::drawPoints);
@@ -154,6 +158,12 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
+		Button tbCurvePathEditor = new Button("Attacher");
+		tbCurvePathEditor.setOnAction(event -> {
+			curvePathAttacher.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
 		Button tbCurveTangentEditor = new Button("Curve");
 		tbCurveTangentEditor.setOnAction(event -> {
 			tangentEditor.setControlPoints(controlPoints);
@@ -179,7 +189,7 @@ public class MainApp extends Application
 		Button tbPathRotator = new Button("Path");
 		tbPathRotator.setOnAction(event -> {
 			rotator.setControlPoints(pathControlPoints);
-			rotator.setCurveDrawer(pathDrawer::drawPoints);
+			rotator.setCurveDrawer(curveDrawer::drawPoints);
 			rotator.activate(anchorPane);
 			meshView.setVisible(false);
 		});
@@ -195,7 +205,7 @@ public class MainApp extends Application
 		Button tbPathSelector = new Button("Path");
 		tbPathSelector.setOnAction(event -> {
 			selectionEditor.setControlPoints(pathControlPoints);
-			selectionEditor.setRectangleProcessor(pathDrawer::drawSelectorRectangle);
+			selectionEditor.setRectangleProcessor(curveDrawer::drawSelectorRectangle);
 			selectionEditor.activate(anchorPane);
 			meshView.setVisible(false);
 		});
@@ -231,6 +241,7 @@ public class MainApp extends Application
 			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
 
 			WritableImage cropped = imageEditor.snapshot(sp, null);
+
 			meshView.activate(anchorPane, new TunnelBuilder(), cropped);
 			meshView.setVisible(true);
 		});
@@ -244,6 +255,7 @@ public class MainApp extends Application
 		GridPane pointEditorPane = new GridPane();
 		pointEditorPane.addRow(0, tbCurveEditor);
 		pointEditorPane.addRow(1, tbPathEditor);
+		pointEditorPane.addRow(2, tbCurvePathEditor);
 
 		GridPane tangentEditorPane = new GridPane();
 		tangentEditorPane.addRow(0, tbCurveTangentEditor);

@@ -1,6 +1,8 @@
 package drawer;
 
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,6 +11,7 @@ import javafx.scene.shape.Rectangle;
 
 import entity.ControlPoint;
 import entity.MutablePoint3D;
+import entity.Path;
 import test.MainApp;
 import tools.Tools;
 
@@ -25,7 +28,10 @@ public class CurveDrawer
 	protected Color unselectedControlPointColor = Color.LIGHTCYAN;
 
 	protected Color controlPointBorder = Color.BLACK;
-	protected Color segmentColor = Color.BLUE;
+	protected Color curveSegmentColor = Color.BLUE;
+	protected Color pathSegmentColor = Color.RED;
+
+	protected Color attachColor = Color.YELLOW;
 
 	protected GraphicsContext gc;
 
@@ -42,10 +48,22 @@ public class CurveDrawer
 		{
 			gc.setFill(controlPoint == MainApp.actualControlPoint ? actualControlPointColor : (controlPoint.isSelected() ? selectedControlPointColor : unselectedControlPointColor));
 			drawControlPoint(controlPoint);
-			gc.setStroke(segmentColor);
+			gc.setStroke(MainApp.controlPoints.contains(controlPoint) ? curveSegmentColor : pathSegmentColor);
 			for (ControlPoint neighbour : controlPoint.getNeighbours())
 			{
 				drawSegment(controlPoint, neighbour);
+			}
+		}
+		Set<Entry<ControlPoint, Path>> attachedControlPoints = MainApp.pathOfControlPoint.entrySet();
+		for (Entry<ControlPoint, Path> attachEntry : attachedControlPoints)
+		{
+			ControlPoint controlPoint = attachEntry.getKey();
+			Path path = attachEntry.getValue();
+			if (path != null)
+			{
+				ControlPoint pathHead = path.getHead();
+				gc.setStroke(attachColor);
+				gc.strokeLine(controlPoint.getX(), controlPoint.getY(), pathHead.getX(), pathHead.getY());
 			}
 		}
 	}

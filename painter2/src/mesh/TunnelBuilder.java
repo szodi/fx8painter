@@ -1,8 +1,5 @@
 package mesh;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import javafx.scene.shape.TriangleMesh;
 
 import entity.ControlPoint;
@@ -14,44 +11,44 @@ public class TunnelBuilder extends MeshBuilder
 	@Override
 	public TriangleMesh createMesh()
 	{
-		Map<ControlPoint, Path> controlPointPathMap = new LinkedHashMap<>();
-		for (int i = 0; i < MainApp.controlPoints.size(); i++)
+		int fromIndex = 0;
+		int nextIndex = getNextAttachedControlPointIndex(fromIndex);
+		Path pathFrom = null;
+		while (nextIndex > -1)
 		{
-			ControlPoint controlPoint = MainApp.controlPoints.get(i);
-			Path firstPath = MainApp.paths.get(0);
-			Path lastPath = MainApp.paths.get(MainApp.paths.size() - 1);
-			Path path;
-			if (i == 0)
+			ControlPoint nextControlPoint = MainApp.controlPoints.get(nextIndex);
+			Path pathTo = MainApp.pathOfControlPoint.get(nextControlPoint);
+			for (int i = fromIndex; i < nextIndex; i++)
 			{
-				path = firstPath;
+				ControlPoint controlPoint = MainApp.controlPoints.get(i);
+				Path path = pathTo;
+				if (pathFrom != null)
+				{
+					path = pathFrom.morph(pathTo, Tunnel.pathSmoothness, (i - fromIndex + 1.0) / (nextIndex - fromIndex + 1.0));
+				}
+				MainApp.pathOfControlPoint.put(controlPoint, path);
 			}
-			else if (i == MainApp.controlPoints.size() - 1)
-			{
-				path = lastPath;
-			}
-			else
-			{
-				double u = (1.0 * i / (MainApp.controlPoints.size() - 1));
-				path = firstPath.morph(lastPath, Tunnel.pathSmoothness, u);
-			}
-			path.translate(controlPoint.getX() - path.getHead().getX(), controlPoint.getY() - path.getHead().getY(), controlPoint.getZ() - path.getHead().getZ());
-			controlPointPathMap.put(controlPoint, path);
+			pathFrom = pathTo;
+			fromIndex = nextIndex + 1;
+			nextIndex = getNextAttachedControlPointIndex(fromIndex);
 		}
-		// Path path = Path.create(MainApp.pathControlPoints);
-		// for (ControlPoint controlPoint : MainApp.controlPoints)
-		// {
-		// Path pathClone = path.clone();
-		// ControlPoint pathHead = pathClone.getHead();
-		// pathClone.translate(controlPoint.getX() - pathHead.getX(), controlPoint.getY() - pathHead.getY(), controlPoint.getZ() - pathHead.getZ());
-		// if (!controlPointPathMap.containsKey(controlPoint))
-		// {
-		// controlPointPathMap.put(controlPoint, pathClone);
-		// }
-		// }
-		Tunnel tunnelCreator = new Tunnel(controlPointPathMap);
+		Tunnel tunnelCreator = new Tunnel(MainApp.pathOfControlPoint);
 		TriangleMesh tunnelMesh = new TriangleMesh();
 		tunnelMesh.getPoints().addAll(tunnelCreator.createPoints());
 		tunnelMesh.getFaces().addAll(tunnelCreator.createFaces());
 		return tunnelMesh;
+	}
+
+	private int getNextAttachedControlPointIndex(int fromIndex)
+	{
+		for (int i = fromIndex; i < MainApp.controlPoints.size(); i++)
+		{
+			ControlPoint cp = MainApp.controlPoints.get(i);
+			if (MainApp.pathOfControlPoint.containsKey(cp) && MainApp.pathOfControlPoint.get(cp) != null)
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 }

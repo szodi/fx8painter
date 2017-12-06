@@ -8,6 +8,6 @@ public class PathDrawer extends CurveDrawer
 	public PathDrawer(Canvas canvas)
 	{
 		super(canvas);
-		segmentColor = Color.RED;
+		curveSegmentColor = Color.RED;
 	}
 }
