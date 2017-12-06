@@ -111,7 +111,11 @@ public class PathEditor extends AbstractEditor
 			}
 			controlPoint.deleteTangentsRecursively();
 			controlPoints.remove(controlPoint);
-			getPath(controlPoint).removeControlPoint(controlPoint);
+			Path path = getPath(controlPoint);
+			if (path != null)
+			{
+				path.removeControlPoint(controlPoint);
+			}
 		}
 	}
 

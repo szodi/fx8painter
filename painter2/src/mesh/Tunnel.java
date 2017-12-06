@@ -15,7 +15,7 @@ public class Tunnel
 {
 	Map<ControlPoint, Path> controlPointPathMap;
 	double curveSmoothness = 0.1;
-	double pathSmoothness = 0.01;
+	public static double pathSmoothness = 0.01;
 
 	public Tunnel(Map<ControlPoint, Path> controlPointPathMap)
 	{

@@ -50,19 +50,40 @@ public class Path
 		return new Path(controlPoints);
 	}
 
-	public List<MutablePoint3D> morph(Path path, double pathSmoothness, double morphState)
+	public Path morph(Path path, double pathSmoothness, double morphState)
 	{
-		List<MutablePoint3D> morphPoints = new ArrayList<>();
+		List<ControlPoint> morphPoints = new ArrayList<>();
 		for (double t = 0; t <= 1.0; t += pathSmoothness)
 		{
 			MutablePoint3D actualPathPoint = Tools.getCurvePoint(getControlPoints(), t);
 			MutablePoint3D otherPathPoint = Tools.getCurvePoint(path.getControlPoints(), t);
 			MutablePoint3D morphPoint = otherPathPoint.subtract(actualPathPoint).multiply(morphState).add(actualPathPoint);
-			morphPoints.add(morphPoint);
+			ControlPoint fakeControlPoint = new ControlPoint(morphPoint.getX(), morphPoint.getY(), morphPoint.getZ());
+			morphPoints.add(fakeControlPoint);
 		}
-		return morphPoints;
+		for (int i = 0; i < morphPoints.size() - 1; i++)
+		{
+			ControlPoint actualFakeControlPoint = morphPoints.get(i);
+			ControlPoint nextFakeControlPoint = morphPoints.get(i + 1);
+			actualFakeControlPoint.setTangent(nextFakeControlPoint, nextFakeControlPoint);
+			nextFakeControlPoint.setTangent(actualFakeControlPoint, actualFakeControlPoint);
+		}
+		return create(morphPoints);
 	}
 
+	// public List<MutablePoint3D> morph(Path path, double pathSmoothness, double morphState)
+	// {
+	// List<MutablePoint3D> morphPoints = new ArrayList<>();
+	// for (double t = 0; t <= 1.0; t += pathSmoothness)
+	// {
+	// MutablePoint3D actualPathPoint = Tools.getCurvePoint(getControlPoints(), t);
+	// MutablePoint3D otherPathPoint = Tools.getCurvePoint(path.getControlPoints(), t);
+	// MutablePoint3D morphPoint = otherPathPoint.subtract(actualPathPoint).multiply(morphState).add(actualPathPoint);
+	// morphPoints.add(morphPoint);
+	// }
+	// return morphPoints;
+	// }
+	//
 	public Path clone()
 	{
 		List<ControlPoint> clonedControlPoints = new ArrayList<>();
