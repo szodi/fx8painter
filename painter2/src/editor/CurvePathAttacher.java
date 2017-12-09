@@ -57,6 +57,21 @@ public class CurvePathAttacher extends PathEditor
 		}
 	}
 
+	@Override
+	protected void handleSecondaryMousePressed(MouseEvent event)
+	{
+		pathControlPoint = getControlPointAt(pathControlPoints, event.getX(), event.getY());
+		if (event.getClickCount() == 2)
+		{
+			if (pathControlPoint != null)
+			{
+				Path path = getPath(pathControlPoint);
+				path.reverse();
+				MainApp.actualPathControlPoint = pathControlPoint;
+			}
+		}
+	}
+
 	private Path getPath(ControlPoint controlPoint)
 	{
 		for (Path path : MainApp.paths)

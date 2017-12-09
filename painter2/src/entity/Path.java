@@ -167,7 +167,7 @@ public class Path
 		return controlPoints.get(controlPoints.size() - 1);
 	}
 
-	public void swapHeadAndTail()
+	public void reverse()
 	{
 		if (Objects.isNull(controlPoints) || controlPoints.isEmpty())
 		{

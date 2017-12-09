@@ -3,6 +3,7 @@ package mesh;
 import javafx.collections.ObservableFloatArray;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -15,6 +16,7 @@ import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
+import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Rotate;
 
 import tools.Tools;
@@ -64,8 +66,11 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 		Bounds bounds = getLayoutBounds();
 		rotate1.setPivotX(bounds.getMinX() + bounds.getWidth() / 2);
 		rotate1.setPivotY(bounds.getMinY() + bounds.getHeight() / 2);
+		rotate1.setPivotZ(bounds.getMinZ() + bounds.getDepth() / 2);
 		rotate2.setPivotX(bounds.getMinX() + bounds.getWidth() / 2);
 		rotate2.setPivotY(bounds.getMinY() + bounds.getHeight() / 2);
+		rotate2.setPivotZ(bounds.getMinZ() + bounds.getDepth() / 2);
+
 		setTranslateZ(-500);
 	}
 
@@ -98,15 +103,15 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 
 	public void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		rotate1.setAngle(rotate1.getAngle() + clickedX - event.getSceneX());
-		rotate2.setAngle(rotate2.getAngle() + event.getSceneY() - clickedY);
+		rotate1.setAngle((rotate1.getAngle() + clickedX - event.getSceneX()) % 360);
+		rotate2.setAngle((rotate2.getAngle() + event.getSceneY() - clickedY) % 360);
+
 		clickedX = event.getSceneX();
 		clickedY = event.getSceneY();
 	}
 
 	protected void handleKeyPressed(KeyEvent event)
 	{
-		System.out.println("SurfaceMeshView.handleKeyPressed()");
 		if (event.getCode() == KeyCode.X)
 		{
 			rotate2.setAxis(Rotate.X_AXIS);
@@ -124,6 +129,66 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 			rotate1.setAxis(Rotate.Z_AXIS);
 			getTransforms().clear();
 			getTransforms().add(rotate1);
+		}
+		else if (event.getCode() == KeyCode.W)
+		{
+			try
+			{
+				Point3D axis2 = rotate2.inverseDeltaTransform(Rotate.X_AXIS);
+				rotate2.setAxis(axis2);
+				rotate2.setAngle((rotate2.getAngle() + 1) % 360);
+				System.out.println(axis2);
+
+			}
+			catch (NonInvertibleTransformException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else if (event.getCode() == KeyCode.S)
+		{
+			try
+			{
+				Point3D axis2 = rotate2.inverseDeltaTransform(Rotate.X_AXIS);
+				rotate2.setAxis(axis2);
+				rotate2.setAngle((rotate2.getAngle() - 1) % 360);
+				System.out.println(axis2);
+
+			}
+			catch (NonInvertibleTransformException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else if (event.getCode() == KeyCode.A)
+		{
+			try
+			{
+				Point3D axis1 = rotate1.inverseDeltaTransform(Rotate.Y_AXIS);
+				rotate1.setAxis(axis1);
+				rotate1.setAngle((rotate1.getAngle() + 1) % 360);
+				System.out.println(axis1);
+
+			}
+			catch (NonInvertibleTransformException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else if (event.getCode() == KeyCode.D)
+		{
+			try
+			{
+				Point3D axis1 = rotate1.inverseDeltaTransform(Rotate.Y_AXIS);
+				rotate1.setAxis(axis1);
+				rotate1.setAngle((rotate1.getAngle() - 1) % 360);
+				System.out.println(axis1);
+
+			}
+			catch (NonInvertibleTransformException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		else if (event.getCode() == KeyCode.ESCAPE)
 		{

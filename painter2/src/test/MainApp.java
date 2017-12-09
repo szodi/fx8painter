@@ -37,6 +37,7 @@ import drawer.TangentDrawer;
 import editor.CurvePathAttacher;
 import editor.GlobalEditor;
 import editor.GridEditor;
+import editor.MultipointAdjuster;
 import editor.PathEditor;
 import editor.PointEditor;
 import editor.Rotator;
@@ -45,6 +46,7 @@ import editor.TangentEditor;
 import entity.ControlPoint;
 import entity.Path;
 import image.ImageEditor;
+import image.MultiPointImageEditor;
 import io.Project;
 import mesh.CoonsPatchBuilder;
 import mesh.SurfaceMeshView;
@@ -66,12 +68,14 @@ public class MainApp extends Application
 	TangentDrawer tangentDrawer = new TangentDrawer(canvas, curveDrawer);
 	PointEditor pointEditor = new PointEditor(controlPoints, curveDrawer::drawPoints);
 	PathEditor pathEditor = new PathEditor(pathControlPoints, curveDrawer::drawPoints);
+	MultipointAdjuster multipointAdjuster = new MultipointAdjuster(pathControlPoints, curveDrawer::drawPoints);
 	CurvePathAttacher curvePathAttacher = new CurvePathAttacher(controlPoints, pathControlPoints, curveDrawer::drawPoints);
 	GridEditor gridEditor = new GridEditor(controlPoints, curveDrawer::drawPoints);
 	SelectionEditor selectionEditor = new SelectionEditor(controlPoints, curveDrawer::drawSelectorRectangle);
 	Rotator rotator = new Rotator(controlPoints, curveDrawer::drawPoints);
 	TangentEditor tangentEditor = new TangentEditor(controlPoints, curveDrawer::drawPoints, tangentDrawer::drawTangent);
 	ImageEditor imageEditor = new ImageEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
+	MultiPointImageEditor multiPointImageEditor = new MultiPointImageEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
 
 	SurfaceMeshView meshView = new SurfaceMeshView();
 
@@ -85,7 +89,7 @@ public class MainApp extends Application
 	{
 		this.stage = primaryStage;
 
-		anchorPane.getChildren().add(imageEditor);
+		anchorPane.getChildren().add(multiPointImageEditor);
 		anchorPane.getChildren().add(meshView);
 		anchorPane.getChildren().add(canvas);
 
@@ -181,6 +185,13 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
+		Button tbMultipointAdjuster = new Button("MultipointAdjuster");
+		tbMultipointAdjuster.setOnAction(event -> {
+			multipointAdjuster.setControlPoints(pathControlPoints);
+			multipointAdjuster.activate(anchorPane);
+			meshView.setVisible(false);
+		});
+
 		Button tbCurveRotator = new Button("Curve");
 		tbCurveRotator.setOnAction(event -> {
 			rotator.setControlPoints(controlPoints);
@@ -213,8 +224,11 @@ public class MainApp extends Application
 			meshView.setVisible(false);
 		});
 
-		Button tbImageAdjuster = new Button("ImageEditor");
-		tbImageAdjuster.setOnAction(event -> imageEditor.activate(anchorPane));
+		Button tbImageEditor = new Button("ImageEditor");
+		tbImageEditor.setOnAction(event -> imageEditor.activate(anchorPane));
+
+		Button tbMultiPointImageEditor = new Button("MultiPointImageEditor");
+		tbMultiPointImageEditor.setOnAction(event -> multiPointImageEditor.activate(anchorPane));
 
 		Button tbSelectionDrawer = new Button("Rectangle");
 		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
@@ -260,6 +274,7 @@ public class MainApp extends Application
 		GridPane tangentEditorPane = new GridPane();
 		tangentEditorPane.addRow(0, tbCurveTangentEditor);
 		tangentEditorPane.addRow(1, tbPathTangentEditor);
+		tangentEditorPane.addRow(2, tbMultipointAdjuster);
 
 		TextField tfHorizontal = new TextField(String.valueOf(GridEditor.horizontalPointsCount));
 		tfHorizontal.setMaxWidth(50);
@@ -319,7 +334,7 @@ public class MainApp extends Application
 
 		TitledPane tpRotator = new TitledPane("Rotator", rotatorPane);
 
-		TitledPane tpImageAdjuster = new TitledPane("Image", tbImageAdjuster);
+		TitledPane tpImageAdjuster = new TitledPane("Image", tbMultiPointImageEditor);
 
 		TitledPane tpMesh = new TitledPane("Mesh", meshViewPane);
 

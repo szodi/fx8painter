@@ -19,6 +19,7 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 {
 	Image image;
 	double clickedX = 0.0;
+	double clickedY = 0.0;
 	Scale scale = new Scale(1.0, 1.0);
 	Rotate rotate = new Rotate();
 	Translate translate = new Translate();
