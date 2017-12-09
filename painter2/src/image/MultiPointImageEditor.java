@@ -10,7 +10,8 @@ public class MultiPointImageEditor extends ImageEditor
 	Point2D target;
 
 	double clickedY = 0.0;
-	double oldScaleFactor;
+	double oldScaleFactor = 1.0;
+	double oldAngle;
 
 	public MultiPointImageEditor(Image image)
 	{
@@ -19,43 +20,42 @@ public class MultiPointImageEditor extends ImageEditor
 
 	protected void handlePrimaryMousePressed(MouseEvent event)
 	{
-		clickedX = event.getSceneX();
-		clickedY = event.getSceneY();
+		localPoint = parentToLocal(event.getX(), event.getY());
 		if (event.isControlDown())
 		{
-			target = new Point2D(clickedX, clickedY);
+			target = new Point2D(event.getX(), event.getY());
 		}
 		else
 		{
-			pivot = new Point2D(clickedX, clickedY);
-			rotate.setPivotX(pivot.getX());
-			rotate.setPivotY(pivot.getY());
+			pivot = new Point2D(event.getX(), event.getY());
 			oldScaleFactor = scale.getX();
+			oldAngle = rotate.getAngle();
 		}
 	}
 
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
+		Point2D actualPoint = parentToLocal(event.getX(), event.getY());
 		if (pivot != null && target != null && event.isControlDown())
 		{
-			Point2D actualPoint = new Point2D(event.getSceneX(), event.getSceneY());
+			Point2D p = new Point2D(event.getX(), event.getY());
 			double dSource = pivot.distance(target);
-			double dDestination = pivot.distance(actualPoint);
+			double dDestination = pivot.distance(p);
 			if (dSource > 0.0)
 			{
 				double scaleFactor = oldScaleFactor * dDestination / dSource;
 				scale.setX(scaleFactor);
 				scale.setY(scaleFactor);
 			}
-			double angle = angle(pivot, target, actualPoint);
-			rotate.setAngle(angle);
+			double angle = angle(pivot, target, p);
+			rotate.setAngle(oldAngle + angle);
 		}
 		else
 		{
-			translate.setX(translate.getX() + event.getSceneX() - clickedX);
-			translate.setY(translate.getY() + event.getSceneY() - clickedY);
-			clickedX = event.getSceneX();
-			clickedY = event.getSceneY();
+			Point2D delta = actualPoint.subtract(localPoint);
+			translate.setX(translate.getX() + delta.getX());
+			translate.setY(translate.getY() + delta.getY());
+			localPoint = parentToLocal(event.getX(), event.getY());
 		}
 	}
 
