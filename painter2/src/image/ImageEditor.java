@@ -3,6 +3,7 @@ package image;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
+import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -43,6 +44,8 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 
 	public void activate(Node node)
 	{
+		node.setCacheHint(CacheHint.SPEED);
+
 		node.setOnMouseMoved(this);
 		node.setOnMouseDragged(this);
 		node.setOnMousePressed(this);
