@@ -140,7 +140,7 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 		else
 		{
 			pivot = new Point2D(event.getX(), event.getY());
-			oldScaleFactor = scale.getX();
+			oldScaleFactor = mirrorFactor * scale.getX();
 			oldAngle = rotate.getAngle();
 		}
 	}
