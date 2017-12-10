@@ -27,6 +27,12 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 
 	Point2D localPoint;
 
+	Point2D pivot;
+	Point2D target;
+
+	double oldScaleFactor = 1.0;
+	double oldAngle;
+
 	public ImageEditor(Image image)
 	{
 		super(image);
@@ -127,13 +133,42 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 	protected void handlePrimaryMousePressed(MouseEvent event)
 	{
 		localPoint = parentToLocal(event.getX(), event.getY());
+		if (event.isControlDown())
+		{
+			target = new Point2D(event.getX(), event.getY());
+		}
+		else
+		{
+			pivot = new Point2D(event.getX(), event.getY());
+			oldScaleFactor = scale.getX();
+			oldAngle = rotate.getAngle();
+		}
 	}
 
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		Point2D dragged = parentToLocal(event.getX(), event.getY());
-		translate.setX(translate.getX() + dragged.getX() - localPoint.getX());
-		translate.setY(translate.getY() + dragged.getY() - localPoint.getY());
+		Point2D actualPoint = parentToLocal(event.getX(), event.getY());
+		if (pivot != null && target != null && event.isControlDown())
+		{
+			Point2D p = new Point2D(event.getX(), event.getY());
+			double dSource = pivot.distance(target);
+			double dDestination = pivot.distance(p);
+			if (dSource > 0.0)
+			{
+				double scaleFactor = oldScaleFactor * dDestination / dSource;
+				scale.setX(mirrorFactor * scaleFactor);
+				scale.setY(scaleFactor);
+			}
+			double angle = angle(pivot, target, p);
+			rotate.setAngle((oldAngle + mirrorFactor * angle) % 360);
+		}
+		else
+		{
+			Point2D delta = actualPoint.subtract(localPoint);
+			translate.setX(translate.getX() + delta.getX());
+			translate.setY(translate.getY() + delta.getY());
+			localPoint = parentToLocal(event.getX(), event.getY());
+		}
 	}
 
 	protected void handleSecondaryMousePressed(MouseEvent event)
@@ -145,6 +180,19 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 	{
 		rotate.setAngle(rotate.getAngle() + (event.getSceneX() - clickedX) / 10);
 		clickedX = event.getSceneX();
+	}
+
+	private static double angle(Point2D pivot, Point2D p1, Point2D p2)
+	{
+		double dpx1 = (p1.getX() - pivot.getX());
+		double dpy1 = (p1.getY() - pivot.getY());
+		double dpx2 = (p2.getX() - pivot.getX());
+		double dpy2 = (p2.getY() - pivot.getY());
+
+		double dot = dpx1 * dpx2 + dpy1 * dpy2;
+		double det = dpx1 * dpy2 - dpy1 * dpx2;
+		double angle1 = Math.atan2(det, dot);
+		return (Math.toDegrees(angle1) + 360) % 360;
 	}
 
 	public Scale getScale()

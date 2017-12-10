@@ -46,7 +46,6 @@ import editor.TangentEditor;
 import entity.ControlPoint;
 import entity.Path;
 import image.ImageEditor;
-import image.MultiPointImageEditor;
 import io.Project;
 import mesh.CoonsPatchBuilder;
 import mesh.SurfaceMeshView;
@@ -75,7 +74,6 @@ public class MainApp extends Application
 	Rotator rotator = new Rotator(controlPoints, curveDrawer::drawPoints);
 	TangentEditor tangentEditor = new TangentEditor(controlPoints, curveDrawer::drawPoints, tangentDrawer::drawTangent);
 	ImageEditor imageEditor = new ImageEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
-	MultiPointImageEditor multiPointImageEditor = new MultiPointImageEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
 
 	SurfaceMeshView meshView = new SurfaceMeshView();
 
@@ -89,7 +87,7 @@ public class MainApp extends Application
 	{
 		this.stage = primaryStage;
 
-		anchorPane.getChildren().add(multiPointImageEditor);
+		anchorPane.getChildren().add(imageEditor);
 		anchorPane.getChildren().add(meshView);
 		anchorPane.getChildren().add(canvas);
 
@@ -227,9 +225,6 @@ public class MainApp extends Application
 		Button tbImageEditor = new Button("ImageEditor");
 		tbImageEditor.setOnAction(event -> imageEditor.activate(anchorPane));
 
-		Button tbMultiPointImageEditor = new Button("MultiPointImageEditor");
-		tbMultiPointImageEditor.setOnAction(event -> multiPointImageEditor.activate(anchorPane));
-
 		Button tbSelectionDrawer = new Button("Rectangle");
 		tbSelectionDrawer.setOnAction(event -> selectionEditor.activate(anchorPane));
 
@@ -334,7 +329,7 @@ public class MainApp extends Application
 
 		TitledPane tpRotator = new TitledPane("Rotator", rotatorPane);
 
-		TitledPane tpImageAdjuster = new TitledPane("Image", tbMultiPointImageEditor);
+		TitledPane tpImageAdjuster = new TitledPane("Image", tbImageEditor);
 
 		TitledPane tpMesh = new TitledPane("Mesh", meshViewPane);
 
