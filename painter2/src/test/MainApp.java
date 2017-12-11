@@ -116,6 +116,8 @@ public class MainApp extends Application
 		canvas.setWidth(5000);
 		canvas.setHeight(5000);
 
+		imageEditor1.opacityProperty().bind(imageSlider.valueProperty());
+
 		pointEditor.activate(anchorPane);
 
 		primaryStage.setScene(scene);
@@ -233,8 +235,7 @@ public class MainApp extends Application
 		imageSlider.setOrientation(Orientation.VERTICAL);
 
 		imageSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
-			imageEditor1.setOpacity(newValue.doubleValue());
-			imageEditor2.setOpacity(1.0 - newValue.doubleValue());
+			// imageEditor1.setOpacity(newValue.doubleValue());
 			if (newValue.doubleValue() >= 0.5)
 			{
 				activeImageEditor = imageEditor1;

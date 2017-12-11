@@ -112,15 +112,16 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 		scale.setPivotY(scrollEvent.getY());
 		if (scrollEvent.getEventType() == ScrollEvent.SCROLL)
 		{
+			double scaleStep = scrollEvent.isControlDown() ? 1.0 / 5000.0 : 1.0 / 500.0;
 			if (mirrorFactor > 0)
 			{
-				scale.setX(Math.max(0, scale.getX() + scrollEvent.getDeltaY() / 500));
+				scale.setX(Math.max(0, scale.getX() + scrollEvent.getDeltaY() * scaleStep));
 			}
 			else
 			{
-				scale.setX(Math.min(0, scale.getX() - scrollEvent.getDeltaY() / 500));
+				scale.setX(Math.min(0, scale.getX() - scrollEvent.getDeltaY() * scaleStep));
 			}
-			scale.setY(Math.max(0, scale.getY() + scrollEvent.getDeltaY() / 500));
+			scale.setY(Math.max(0, scale.getY() + scrollEvent.getDeltaY() * scaleStep));
 		}
 	}
 
