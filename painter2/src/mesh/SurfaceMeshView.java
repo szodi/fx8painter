@@ -13,6 +13,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
+import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
@@ -35,7 +36,7 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 	public SurfaceMeshView()
 	{
 		setCullFace(CullFace.NONE);
-		// setDrawMode(DrawMode.LINE);
+		setDrawMode(DrawMode.LINE);
 		getTransforms().add(rotate1);
 		getTransforms().add(rotate2);
 
@@ -197,6 +198,19 @@ public class SurfaceMeshView extends MeshView implements EventHandler<MouseEvent
 			getTransforms().clear();
 			getTransforms().add(rotate1);
 			getTransforms().add(rotate2);
+		}
+		else if (event.getCode() == KeyCode.C)
+		{
+			DrawMode drawMode = getDrawMode();
+			if (drawMode == DrawMode.FILL)
+			{
+				drawMode = DrawMode.LINE;
+			}
+			else
+			{
+				drawMode = DrawMode.FILL;
+			}
+			setDrawMode(drawMode);
 		}
 	}
 }
