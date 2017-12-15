@@ -43,8 +43,8 @@ public class ViewPortEditor extends ImageView implements EventHandler<Event>
 	double translateX = 0.0;
 	double translateY = 0.0;
 
-	double parentWidth = 1280;
-	double parentHeight = 720;
+	double parentWidth = 1920;
+	double parentHeight = 1080;
 
 	Text text = new Text();
 	Rectangle rectangle = new Rectangle();
@@ -78,50 +78,23 @@ public class ViewPortEditor extends ImageView implements EventHandler<Event>
 		if (event instanceof MouseEvent)
 		{
 			MouseEvent mouseEvent = (MouseEvent)event;
-			handle(mouseEvent);
-			updateTooltip(mouseEvent.getX(), mouseEvent.getY());
 			lastMouseX = mouseEvent.getX();
 			lastMouseY = mouseEvent.getY();
+			handle(mouseEvent);
 		}
 		else if (event instanceof ScrollEvent)
 		{
 			ScrollEvent scrollEvent = (ScrollEvent)event;
+			lastMouseX = scrollEvent.getX();
+			lastMouseY = scrollEvent.getY();
 			handle(scrollEvent);
-			updateTooltip(scrollEvent.getX(), scrollEvent.getY());
 		}
 		else if (event instanceof KeyEvent)
 		{
 			handle((KeyEvent)event);
-			doSetViewport();
 		}
-	}
-
-	private void updateTooltip(double x, double y)
-	{
-		Point2D p = parentToLocal(x, y);
-		StringBuilder sbText = new StringBuilder();
-		sbText.append(String.format("parent: %.2f, %.2f", x, y));
-		sbText.append('\n');
-		sbText.append(String.format("local: %.2f, %.2f", p.getX(), p.getY()));
-		sbText.append('\n');
-		sbText.append(String.format("translate: %.2f, %.2f", translateX, translateY));
-		sbText.append('\n');
-		sbText.append(String.format("scale: %.2f", scale.getX()));
-		sbText.append('\n');
-		sbText.append(String.format("local+translate: %.2f, %.2f", p.getX() + translateX, p.getY() + translateY));
-		text.setText(sbText.toString());
-		text.setX(x + 5);
-		text.setY(y + 30);
-		double textWidth = text.getLayoutBounds().getWidth();
-		double textHeight = text.getLayoutBounds().getHeight();
-		rectangle.setX(text.getX() - 5);
-		rectangle.setY(text.getY() - 15);
-		rectangle.setWidth(textWidth + 10);
-		rectangle.setHeight(textHeight + 10);
-		final Clipboard clipboard = Clipboard.getSystemClipboard();
-		final ClipboardContent content = new ClipboardContent();
-		content.putString(sbText.toString());
-		clipboard.setContent(content);
+		updateTooltip(lastMouseX, lastMouseY);
+		doSetViewport();
 	}
 
 	public void handle(MouseEvent mouseEvent)
@@ -157,10 +130,8 @@ public class ViewPortEditor extends ImageView implements EventHandler<Event>
 
 	public void handle(ScrollEvent scrollEvent)
 	{
-		double scaleFactorX = scale.getX() * Math.pow(1.01, scrollEvent.getDeltaY());
-		double scaleFactorY = Math.abs(scale.getX() * Math.pow(1.01, scrollEvent.getDeltaY()));
-		zoom(scrollEvent.getX(), scrollEvent.getY(), scaleFactorX, scaleFactorY);
-		doSetViewport();
+		double scaleFactor = scale.getX() * Math.pow(1.01, scrollEvent.getDeltaY());
+		zoom(scrollEvent.getX(), scrollEvent.getY(), scaleFactor, Math.abs(scaleFactor));
 	}
 
 	private void zoom(double x, double y, double factorX, double factorY)
@@ -181,36 +152,6 @@ public class ViewPortEditor extends ImageView implements EventHandler<Event>
 		translateX = mirrorFactor * (parentWidth - 2 * lastMouseX) / scale.getX() - translateX;
 	}
 
-	public void handle(KeyEvent keyEvent)
-	{
-		if (keyEvent.getCode() == KeyCode.M)
-		{
-			mirror();
-		}
-		else if (keyEvent.getCode() == KeyCode.ESCAPE)
-		{
-			translateX = 0.0;
-			translateY = 0.0;
-		}
-		else if (keyEvent.getCode() == KeyCode.LEFT)
-		{
-			translateX += 1.0;
-		}
-		else if (keyEvent.getCode() == KeyCode.RIGHT)
-		{
-			translateX -= 1.0;
-		}
-		else if (keyEvent.getCode() == KeyCode.UP)
-		{
-			translateY += 1.0;
-		}
-		else if (keyEvent.getCode() == KeyCode.DOWN)
-		{
-			translateY -= 1.0;
-		}
-		updateTooltip(lastMouseX, lastMouseY);
-	}
-
 	protected void handlePrimaryMousePressed(MouseEvent event)
 	{
 		localPoint = parentToLocal(event.getX(), event.getY());
@@ -224,34 +165,31 @@ public class ViewPortEditor extends ImageView implements EventHandler<Event>
 			oldScaleFactor = mirrorFactor * scale.getX();
 			oldAngle = rotate.getAngle();
 		}
-		doSetViewport();
 	}
 
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		Point2D actualPoint = parentToLocal(event.getX(), event.getY());
+		Point2D actualPoint = new Point2D(event.getX(), event.getY());
 		if (pivot != null && target != null && event.isControlDown())
 		{
-			Point2D p = new Point2D(event.getX(), event.getY());
 			double dSource = pivot.distance(target);
-			double dDestination = pivot.distance(p);
+			double dDestination = pivot.distance(actualPoint);
 			if (dSource > 0.0)
 			{
 				double scaleFactorX = oldScaleFactor * dDestination / dSource;
 				double scaleFactorY = oldScaleFactor * dDestination / dSource;
 				zoom(pivot.getX(), pivot.getY(), mirrorFactor * scaleFactorX, scaleFactorY);
 			}
-			// double angle = angle(pivot, target, p);
-			// rotate.setAngle((oldAngle + mirrorFactor * angle) % 360);
+			double angle = angle(pivot, target, actualPoint);
+			rotate.setAngle((oldAngle + mirrorFactor * angle) % 360);
 		}
 		else
 		{
-			Point2D delta = actualPoint.subtract(localPoint);
+			Point2D delta = parentToLocal(actualPoint).subtract(localPoint);
 			translateX -= mirrorFactor * delta.getX();
 			translateY -= delta.getY();
 			localPoint = parentToLocal(event.getX(), event.getY());
 		}
-		doSetViewport();
 	}
 
 	protected void handleSecondaryMousePressed(MouseEvent event)
@@ -283,5 +221,62 @@ public class ViewPortEditor extends ImageView implements EventHandler<Event>
 		double det = dpx1 * dpy2 - dpy1 * dpx2;
 		double angle1 = Math.atan2(det, dot);
 		return (Math.toDegrees(angle1) + 360) % 360;
+	}
+
+	public void handle(KeyEvent keyEvent)
+	{
+		if (keyEvent.getCode() == KeyCode.M)
+		{
+			mirror();
+		}
+		else if (keyEvent.getCode() == KeyCode.ESCAPE)
+		{
+			translateX = 0.0;
+			translateY = 0.0;
+		}
+		else if (keyEvent.getCode() == KeyCode.LEFT)
+		{
+			translateX += 1.0;
+		}
+		else if (keyEvent.getCode() == KeyCode.RIGHT)
+		{
+			translateX -= 1.0;
+		}
+		else if (keyEvent.getCode() == KeyCode.UP)
+		{
+			translateY += 1.0;
+		}
+		else if (keyEvent.getCode() == KeyCode.DOWN)
+		{
+			translateY -= 1.0;
+		}
+	}
+
+	private void updateTooltip(double x, double y)
+	{
+		Point2D p = parentToLocal(x, y);
+		StringBuilder sbText = new StringBuilder();
+		sbText.append(String.format("parent: %.2f, %.2f", x, y));
+		sbText.append('\n');
+		sbText.append(String.format("local: %.2f, %.2f", p.getX(), p.getY()));
+		sbText.append('\n');
+		sbText.append(String.format("translate: %.2f, %.2f", translateX, translateY));
+		sbText.append('\n');
+		sbText.append(String.format("scale: %.2f", scale.getX()));
+		sbText.append('\n');
+		sbText.append(String.format("local+translate: %.2f, %.2f", p.getX() + translateX, p.getY() + translateY));
+		text.setText(sbText.toString());
+		text.setX(x + 5);
+		text.setY(y + 30);
+		double textWidth = text.getLayoutBounds().getWidth();
+		double textHeight = text.getLayoutBounds().getHeight();
+		rectangle.setX(text.getX() - 5);
+		rectangle.setY(text.getY() - 15);
+		rectangle.setWidth(textWidth + 10);
+		rectangle.setHeight(textHeight + 10);
+		final Clipboard clipboard = Clipboard.getSystemClipboard();
+		final ClipboardContent content = new ClipboardContent();
+		content.putString(sbText.toString());
+		clipboard.setContent(content);
 	}
 }
