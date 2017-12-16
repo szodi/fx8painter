@@ -55,7 +55,7 @@ public class MultipointAdjuster extends AbstractEditor
 		curveDrawer.accept(path.getControlPoints());
 	}
 
-	public void rotateCurve(Path path, boolean onlySelected)
+	public void persistCurve(Path path, boolean onlySelected)
 	{
 		for (ControlPoint controlPoint : path.getControlPoints())
 		{
@@ -86,8 +86,8 @@ public class MultipointAdjuster extends AbstractEditor
 	@Override
 	protected void handlePrimaryMousePressed(MouseEvent event)
 	{
-		clickedX = event.getSceneX();
-		clickedY = event.getSceneY();
+		clickedX = event.getX();
+		clickedY = event.getY();
 		clicked = new MutablePoint3D(clickedX, clickedY, 0);
 		if (event.isControlDown())
 		{
@@ -106,25 +106,24 @@ public class MultipointAdjuster extends AbstractEditor
 	@Override
 	protected void handlePrimaryMouseDragged(MouseEvent event)
 	{
-		System.out.println(pivot + "\t" + target);
 		if (pivot != null && target != null)
 		{
-			MutablePoint3D actualPoint = new MutablePoint3D(event.getSceneX(), event.getSceneY(), 0);
+			MutablePoint3D actualPoint = new MutablePoint3D(event.getX(), event.getY(), 0);
 			double dx = target.getX() - pivot.getX();
 			double dy = target.getY() - pivot.getY();
 			if (dx != 0.0)
 			{
-				scale.setX((event.getSceneX() - pivot.getX()) / dx);
+				scale.setX((event.getX() - pivot.getX()) / dx);
 			}
 			if (dy != 0.0)
 			{
-				scale.setY((event.getSceneY() - pivot.getY()) / dy);
+				scale.setY((event.getY() - pivot.getY()) / dy);
 			}
-			// double angle = pivot.angle(clicked, actualPoint);
-			// rotate.setAngle(-angle);
+			double angle = pivot.angle(clicked, actualPoint);
+			rotate.setAngle(-angle);
 		}
 		pathClone = path.clone();
-		rotateCurve(pathClone, false);
+		persistCurve(pathClone, false);
 	}
 
 	// @Override

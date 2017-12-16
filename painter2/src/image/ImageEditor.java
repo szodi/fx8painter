@@ -108,21 +108,22 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 
 	public void handle(ScrollEvent scrollEvent)
 	{
-		scale.setPivotX(scrollEvent.getX());
-		scale.setPivotY(scrollEvent.getY());
 		if (scrollEvent.getEventType() == ScrollEvent.SCROLL)
 		{
-			double scaleStep = scrollEvent.isControlDown() ? 1.0 / 5000.0 : 1.0 / 500.0;
-			if (mirrorFactor > 0)
-			{
-				scale.setX(Math.max(0, scale.getX() + scrollEvent.getDeltaY() * scaleStep));
-			}
-			else
-			{
-				scale.setX(Math.min(0, scale.getX() - scrollEvent.getDeltaY() * scaleStep));
-			}
-			scale.setY(Math.max(0, scale.getY() + scrollEvent.getDeltaY() * scaleStep));
+			double scaleStep = scrollEvent.isControlDown() ? 1.0 / 50.0 : 1.0 / 5.0;
+			double scaleFactor = Math.abs(scale.getX() * Math.pow(1.01, scrollEvent.getDeltaY() * scaleStep));
+			zoom(scrollEvent.getX(), scrollEvent.getY(), mirrorFactor * scaleFactor, scaleFactor);
 		}
+	}
+
+	private void zoom(double x, double y, double factorX, double factorY)
+	{
+		double translateFactorX = (scale.getX() - factorX) / (scale.getX() * factorX);
+		double translateFactorY = (scale.getY() - factorY) / (scale.getY() * factorY);
+		scale.setX(factorX);
+		scale.setY(factorY);
+		translate.setX(translate.getX() + x * translateFactorX);
+		translate.setY(translate.getY() + y * translateFactorY);
 	}
 
 	public void handle(KeyEvent keyEvent)
@@ -144,6 +145,8 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 		else
 		{
 			pivot = new Point2D(event.getX(), event.getY());
+			rotate.setPivotX(pivot.getX());
+			rotate.setPivotY(pivot.getY());
 			oldScaleFactor = mirrorFactor * scale.getX();
 			oldAngle = rotate.getAngle();
 		}
@@ -160,11 +163,10 @@ public class ImageEditor extends ImageView implements EventHandler<Event>
 			if (dSource > 0.0)
 			{
 				double scaleFactor = oldScaleFactor * dDestination / dSource;
-				scale.setX(mirrorFactor * scaleFactor);
-				scale.setY(scaleFactor);
+				zoom(pivot.getX(), pivot.getY(), mirrorFactor * scaleFactor, scaleFactor);
 			}
-			double angle = angle(pivot, target, p);
-			rotate.setAngle((oldAngle + mirrorFactor * angle) % 360);
+			// double angle = angle(pivot, target, p);
+			// rotate.setAngle((oldAngle + mirrorFactor * angle) % 360);
 		}
 		else
 		{

@@ -11,17 +11,17 @@ import javafx.stage.Stage;
 
 public class ViewPortEditorTestApp extends Application
 {
-	private static String IMAGE_FILE = "d:\\grid.png";
-	// private static String IMAGE_FILE = "d:\\imagevenue\\Lana_I\\72405_met-art.com_20161021\\118_MetArt_Presenting-Lana_Lana-I_high_0118.jpg";
+	// private static String IMAGE_FILE = "d:\\grid.png";
+	private static String IMAGE_FILE = "d:\\imagevenue\\Lana_I\\72405_met-art.com_20161021\\118_MetArt_Presenting-Lana_Lana-I_high_0118.jpg";
 
 	// ViewPortEditor viewPortEditor = new ViewPortEditor(new Image("http://www.imgion.com/images/01/Voilet-Flower-.jpg"));
-	ViewPortEditor viewPortEditor = new ViewPortEditor(new Image(new File(IMAGE_FILE).toURI().toString()));
+	ViewPortEditor viewPortEditor = new ViewPortEditor(new Image(new File(IMAGE_FILE).toURI().toString()), 1280, 720);
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
 		AnchorPane anchorPane = new AnchorPane(viewPortEditor);
-		Scene scene = new Scene(anchorPane, 1920, 1080, true, SceneAntialiasing.BALANCED);
+		Scene scene = new Scene(anchorPane, 1280, 720, true, SceneAntialiasing.BALANCED);
 
 		viewPortEditor.activate(anchorPane);
 

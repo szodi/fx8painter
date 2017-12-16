@@ -55,8 +55,10 @@ import mesh.TunnelBuilder;
 
 public class MainApp extends Application
 {
-	private static String IMAGE_FILE_1 = "d:\\imagevenue\\Alisa_I\\84593_hegre-art.com_20171102\\000_alisa-soft-daylight-01-10000px.jpg";
-	private static String IMAGE_FILE_2 = "d:\\imagevenue\\Alisa_I\\84593_hegre-art.com_20171102\\031_alisa-soft-daylight-32-10000px.jpg";
+	// private static String IMAGE_FILE_1 = "d:\\imagevenue\\Alisa_I\\84593_hegre-art.com_20171102\\000_alisa-soft-daylight-01-10000px.jpg";
+	// private static String IMAGE_FILE_2 = "d:\\imagevenue\\Alisa_I\\84593_hegre-art.com_20171102\\031_alisa-soft-daylight-32-10000px.jpg";
+	private static String IMAGE_FILE_1 = "d:\\imagevenue\\Lana_I\\72405_met-art.com_20161021\\118_MetArt_Presenting-Lana_Lana-I_high_0118.jpg";
+	private static String IMAGE_FILE_2 = "d:\\imagevenue\\Lana_I\\72405_met-art.com_20161021\\119_MetArt_Presenting-Lana_Lana-I_high_0119.jpg";
 	public static List<ControlPoint> controlPoints = new ArrayList<>();
 	public static List<ControlPoint> pathControlPoints = new ArrayList<>();
 	public static List<Path> paths = new ArrayList<>();
@@ -76,6 +78,10 @@ public class MainApp extends Application
 	SelectionEditor selectionEditor = new SelectionEditor(controlPoints, curveDrawer::drawSelectorRectangle);
 	Rotator rotator = new Rotator(controlPoints, curveDrawer::drawPoints);
 	TangentEditor tangentEditor = new TangentEditor(controlPoints, curveDrawer::drawPoints, tangentDrawer::drawTangent);
+	// ViewPortEditor imageEditor1 = new ViewPortEditor(new Image(new File(IMAGE_FILE_1).toURI().toString()), 1920, 1080);
+	// ViewPortEditor imageEditor2 = new ViewPortEditor(new Image(new File(IMAGE_FILE_2).toURI().toString()), 1920, 1080);
+	//
+	// ViewPortEditor activeImageEditor = imageEditor1;
 	ImageEditor imageEditor1 = new ImageEditor(new Image(new File(IMAGE_FILE_1).toURI().toString()));
 	ImageEditor imageEditor2 = new ImageEditor(new Image(new File(IMAGE_FILE_2).toURI().toString()));
 
