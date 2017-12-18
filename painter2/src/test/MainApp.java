@@ -3,8 +3,10 @@ package test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -50,7 +52,9 @@ import entity.Path;
 import image.ImageEditor;
 import io.Project;
 import mesh.CoonsPatchBuilder;
+import mesh.GraphCycleFinder;
 import mesh.SurfaceMeshView;
+import mesh.TriangularCoonsPatchBuilder;
 import mesh.TunnelBuilder;
 
 public class MainApp extends Application
@@ -272,6 +276,16 @@ public class MainApp extends Application
 			meshView.setVisible(true);
 		});
 
+		Button tbTriangularCoonsPatch = new Button("Triangular Coon's patch");
+		tbTriangularCoonsPatch.setOnAction(event -> {
+			SnapshotParameters sp = new SnapshotParameters();
+			sp.setViewport(new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()));
+
+			WritableImage cropped = activeImageEditor.snapshot(sp, null);
+			meshView.activate(anchorPane, new TriangularCoonsPatchBuilder(), cropped);
+			meshView.setVisible(true);
+		});
+
 		Button tbTunnel = new Button("Tunnel");
 		tbTunnel.setOnAction(event -> {
 			SnapshotParameters sp = new SnapshotParameters();
@@ -337,11 +351,24 @@ public class MainApp extends Application
 
 		GridPane meshViewPane = new GridPane();
 		meshViewPane.addRow(0, tbCoonsPatch);
-		meshViewPane.addRow(1, tbTunnel);
+		meshViewPane.addRow(1, tbTriangularCoonsPatch);
+		meshViewPane.addRow(2, tbTunnel);
 
 		GridPane loadAndSavePane = new GridPane();
 		loadAndSavePane.addRow(0, tbLoad);
 		loadAndSavePane.addRow(1, tbSave);
+
+		Button bGraphCycleFinder = new Button("GraphCycleFinder");
+
+		bGraphCycleFinder.setOnAction(event -> {
+			GraphCycleFinder circleFinder = new GraphCycleFinder(controlPoints);
+			Set<LinkedHashSet<ControlPoint>> circles = circleFinder.findCycles(4);
+			System.out.println(circles.size());
+			for (LinkedHashSet<ControlPoint> circle : circles)
+			{
+				System.out.println(circle);
+			}
+		});
 
 		TitledPane tpPointEditor = new TitledPane("Point", pointEditorPane);
 
@@ -375,7 +402,9 @@ public class MainApp extends Application
 
 		TitledPane tpLoadAndSave = new TitledPane("Load/Save", loadAndSavePane);
 
-		return new Accordion(tpPointEditor, tpTangentEditor, tpGridEditor, tpSelector, tpRotator, tpImageAdjuster, tpMesh, tpGlobalEditor, tpLoadAndSave);
+		TitledPane tpGraphCycleFinder = new TitledPane("GraphCycleFinder", bGraphCycleFinder);
+
+		return new Accordion(tpPointEditor, tpTangentEditor, tpGridEditor, tpSelector, tpRotator, tpImageAdjuster, tpMesh, tpGlobalEditor, tpLoadAndSave, tpGraphCycleFinder);
 	}
 
 	private void save(Stage stage)

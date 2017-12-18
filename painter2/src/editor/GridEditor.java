@@ -82,6 +82,12 @@ public class GridEditor extends AbstractEditor
 					cp0.setTangent(cpDown, cpDown.clone().subtract(cp0));
 					cpDown.setTangent(cp0, cp0.clone().subtract(cpDown));
 				}
+				if ((i < horizontalPointsCount - 1) && (j < verticalPointsCount - 1))
+				{
+					ControlPoint cpRightDown = points.get((j + 1) * horizontalPointsCount + i + 1);
+					cp0.setTangent(cpRightDown, cpRightDown.clone().subtract(cp0));
+					cpRightDown.setTangent(cp0, cp0.clone().subtract(cpRightDown));
+				}
 			}
 		}
 		return points;
