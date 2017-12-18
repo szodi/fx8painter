@@ -362,7 +362,7 @@ public class MainApp extends Application
 
 		bGraphCycleFinder.setOnAction(event -> {
 			GraphCycleFinder circleFinder = new GraphCycleFinder(controlPoints);
-			Set<LinkedHashSet<ControlPoint>> circles = circleFinder.findCycles(4);
+			Set<LinkedHashSet<ControlPoint>> circles = circleFinder.findCycles(3);
 			System.out.println(circles.size());
 			for (LinkedHashSet<ControlPoint> circle : circles)
 			{

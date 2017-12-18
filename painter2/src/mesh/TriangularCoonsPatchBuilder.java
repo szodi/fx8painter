@@ -30,7 +30,15 @@ public class TriangularCoonsPatchBuilder extends MeshBuilder
 			ControlPoint p3 = cpIterator.next();
 
 			TriangleMesh coonsMesh = new TriangleMesh();
-			TriangularCoonsPatch coonsPatchCreator = new TriangularCoonsPatch(p1, p2, p3);
+			TriangularCoonsPatch coonsPatchCreator;
+			if (p2.crossProduct(p3).getZ() > 0.0)
+			{
+				coonsPatchCreator = new TriangularCoonsPatch(p1, p2, p3);
+			}
+			else
+			{
+				coonsPatchCreator = new TriangularCoonsPatch(p1, p3, p2);
+			}
 			coonsMesh.getPoints().addAll(coonsPatchCreator.createPoints());
 			coonsMesh.getFaces().addAll(coonsPatchCreator.createFaces());
 			meshes.add(coonsMesh);
